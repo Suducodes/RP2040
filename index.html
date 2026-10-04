@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Interactive 3D Raspberry Pi Pico W and a syllabus-aligned RP2040 course workbench: live simulations, register editors, a PIO simulator and breadboard experiments.">
+<meta name="description" content="Interactive 3D Raspberry Pi Pico W and a syllabus-aligned RP2040 course with a step-by-step "Chip City" story view: live simulations, register editors, a PIO simulator and breadboard experiments.">
 <style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Pico W Teardown Bench</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -405,6 +405,72 @@ body.lab-on .lab-dock{transform:none;opacity:1;pointer-events:auto}
   .c-brand span{display:none}
 }
 
+/* ===== Story mode (split view) ===== */
+body.story-on .index,body.story-on .detail,body.story-on .hint,body.story-on .lab-side,body.story-on .lab-dock{opacity:0!important;pointer-events:none!important}
+body.story-on .brand-meta{display:none}
+body.city-on .crumbs{opacity:0;pointer-events:none}
+.story{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));max-height:calc(100% - 112px);width:400px;z-index:9;display:flex;flex-direction:column;padding:14px 16px 14px;transform:translateX(calc(100% + 40px));opacity:0;pointer-events:none;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s}
+body.story-on .story{transform:none;opacity:1;pointer-events:auto}
+.sy-top{display:flex;align-items:center;gap:8px}
+.sy-units{display:flex;gap:3px;flex:1;justify-content:flex-end}
+.sy-units button{width:30px;height:28px;border-radius:6px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:var(--muted);font:600 11px/1 var(--f-mono)}
+.sy-units button[aria-current="true"]{background:var(--gold);color:#1a1409;border-color:var(--gold)}
+.sy-title{display:grid;grid-template-columns:1fr auto;gap:2px 8px;width:100%;margin-top:14px;padding:0;border:0;background:none;text-align:left;color:var(--text)}
+.sy-title .k{grid-column:1/-1;font:500 10px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.sy-title b{font:600 24px/1.08 var(--f-display);letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.sy-title i{font-style:normal;color:var(--faint);align-self:center;font-size:13px}
+.sy-title:hover b{color:var(--gold-2)}
+.sy-list{margin-top:10px;max-height:46%;overflow:auto;border:1px solid var(--line-2);border-radius:8px;padding:4px;scrollbar-width:thin}
+.sy-list button{display:grid;grid-template-columns:28px 1fr;gap:6px;width:100%;text-align:left;padding:7px 8px;border:0;border-radius:5px;background:none;color:var(--text);font:500 13px/1.3 var(--f-body)}
+.sy-list button span{font:500 10.5px/1.3 var(--f-mono);color:var(--faint)}
+.sy-list button:hover{background:rgba(255,255,255,.05)}
+.sy-list button[aria-current="true"]{background:rgba(226,180,87,.14);color:var(--gold-2)}
+.sy-step{flex:0 1 auto;min-height:0;overflow:auto;margin-top:16px;scrollbar-width:thin}
+.sy-step .n{font:500 10px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.sy-step h3{margin:8px 0 8px;font:600 19px/1.15 var(--f-display);letter-spacing:.03em;text-transform:uppercase;color:var(--gold-2)}
+.sy-step p{margin:0;font-size:15.5px;line-height:1.62;color:#e8e4d9}
+.sy-step p code{font:400 13px var(--f-mono);color:var(--gold-2)}
+.sy-step .look{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font:500 11.5px/1.3 var(--f-mono);color:#9fd8cf}
+.sy-step .look::before{content:"";width:8px;height:8px;border-radius:50%;background:#5fd0c3;box-shadow:0 0 8px #5fd0c3}
+.sy-dots{display:flex;gap:4px;margin-top:12px}
+.sy-dots button{flex:1;height:6px;padding:0;border:0;border-radius:3px;background:rgba(255,255,255,.1)}
+.sy-dots button.done{background:rgba(226,180,87,.45)}
+.sy-dots button.cur{background:var(--gold)}
+.sy-ctrl{display:flex;gap:6px;margin-top:10px}
+.sy-ctrl .act{padding:8px 12px}
+.sy-ctrl #syNextTopic{margin-left:auto}
+.sy-more{display:flex;gap:5px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2)}
+.sy-more button{flex:1;padding:8px 4px;border-radius:6px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:var(--muted);font:600 10.5px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.sy-more button:hover{color:var(--text);border-color:var(--line)}
+.sy-more button[aria-pressed="true"]{color:#1a1409;background:var(--gold);border-color:var(--gold)}
+.sy-more button[data-d="sim"]{color:#bfe7e1;border-color:rgba(95,208,195,.35)}
+.sy-drawer{position:fixed;right:calc(428px + env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:400px;max-height:58%;overflow:auto;z-index:10;padding:14px 16px 16px;transform:translateY(20px);opacity:0;pointer-events:none;transition:transform .35s,opacity .3s;scrollbar-width:thin}
+.sy-drawer.open{transform:none;opacity:1;pointer-events:auto}
+.sy-drawer h4{margin:0 0 10px;font:500 10px/1 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);display:flex;justify-content:space-between;align-items:center}
+.sy-drawer ul{margin:0;padding:0 0 0 16px;display:grid;gap:6px;font-size:13px;line-height:1.5;color:#dcd8cd}
+.sy-drawer ul li::marker{color:var(--gold)}
+.sy-modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(5,7,10,.72);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+.sy-modal.open{opacity:1;visibility:visible;transition:opacity .3s}
+.sy-modal-in{width:min(1120px,94vw);height:min(90vh,980px);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+.sy-modal-in header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-2)}
+.sy-modal-in header b{font:600 18px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+.sy-modal-body{overflow:auto;padding:16px 18px 30px;scrollbar-width:thin}
+.cc{position:absolute;left:0;top:0;padding:5px 9px 6px;border-radius:6px;background:rgba(10,13,17,.86);border:1px solid rgba(226,180,87,.45);font:600 11.5px/1.2 var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:#f2eee4;white-space:nowrap;will-change:transform;transition:opacity .3s;pointer-events:none}
+.cc small{display:block;font:400 10.5px/1.3 var(--f-mono);letter-spacing:0;text-transform:none;color:#9fd8cf;margin-top:2px}
+.cc::after{content:"";position:absolute;left:50%;bottom:-7px;width:1px;height:7px;background:rgba(226,180,87,.6)}
+.cc.hot{border-color:#5fd0c3;box-shadow:0 0 0 3px rgba(95,208,195,.15)}
+.fade{position:fixed;inset:0;z-index:8;background:#06080b;opacity:0;pointer-events:none;transition:opacity .28s}
+.fade.on{opacity:1}
+@media (max-width:760px){
+  .story{left:10px;right:10px;width:auto;top:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));height:auto;max-height:50%;transform:translateY(calc(100% + 90px));padding:12px 14px}
+  .sy-title b{font-size:19px}
+  .sy-step{flex:0 1 auto;margin-top:10px}
+  .sy-title{margin-top:10px}
+  .sy-step p{font-size:14.5px}
+  .sy-drawer{left:10px;right:10px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));max-height:52%}
+  .sy-modal-in{width:100vw;height:100%;border-radius:0}
+}
+
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes slide{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
 .toolbar{animation-name:riseC}
@@ -436,6 +502,7 @@ body.lab-on .lab-dock{transform:none;opacity:1;pointer-events:auto}
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 </style>
+
 </head>
 <body>
 <div id="app">
@@ -470,6 +537,19 @@ body.lab-on .lab-dock{transform:none;opacity:1;pointer-events:auto}
     <button class="tb" id="bCourse" aria-pressed="false"><svg viewBox="0 0 16 16"><path d="M2 3.5c2-.8 4-.8 6 .6 2-1.4 4-1.4 6-.6v9c-2-.8-4-.8-6 .6-2-1.4-4-1.4-6-.6z"/><path d="M8 4.1v9"/></svg>Course</button>
   </div>
 
+
+  <aside class="story panel" id="story" aria-label="Course story">
+    <div class="sy-top"><span class="chip" style="--c:#e2b457" id="syUnit">Unit 1</span><div class="sy-units" id="syUnits"></div><button class="x" id="syClose" aria-label="Close course">×</button></div>
+    <button class="sy-title" id="syTitle" aria-expanded="false"><span class="k" id="syCount"></span><b id="syName"></b><i>▾ topics</i></button>
+    <div class="sy-list" id="syList" hidden></div>
+    <div class="sy-step" id="syStep" aria-live="polite"></div>
+    <div class="sy-dots" id="syDots"></div>
+    <div class="sy-ctrl"><button class="act" id="syPrev" aria-label="Previous step">◀</button><button class="act primary" id="syPlay">Play</button><button class="act" id="syNext" aria-label="Next step">▶</button><button class="act" id="syNextTopic">Next topic →</button></div>
+    <div class="sy-more" id="syMore"><button data-d="pts" aria-pressed="false">Key points</button><button data-d="regs" aria-pressed="false">Registers</button><button data-d="ex" aria-pressed="false">Try it</button><button data-d="sim">Simulator</button></div>
+  </aside>
+  <div class="sy-drawer panel" id="syDrawer"></div>
+  <section class="sy-modal" id="syModal" aria-label="Simulator"><div class="sy-modal-in panel"><header><b id="smTitle"></b><button class="x" id="smClose" aria-label="Close simulator">×</button></header><div class="sy-modal-body" id="smBody"></div></div></section>
+  <div class="fade" id="fade"></div>
   <section class="course" id="course" aria-label="Course workbench">
     <header class="c-head">
       <div class="c-brand"><b>RP2040 Course</b><span>MICROCONTROLLER · UNITS 1–5 · EXPLORE BY TOPIC</span></div>
@@ -1609,12 +1689,14 @@ canvas.addEventListener('pointerdown', e => {
   stopTour();
   for (let i = tweens.length - 1; i >= 0; i--) if (tweens[i].tag === 'cam') tweens.splice(i, 1);
   if (LAB.on) { labPointerDown(e); return; }
+  if (VIEW === 'city') return;
   const u = pick(e.clientX, e.clientY);
   if (u && u.part === 'bootsel' && S.sel === 'bootsel') pressBoot(true);
 });
 window.addEventListener('pointerup', e => {
   pressBoot(false);
   if (LAB.on) { if (LAB.hold && !($('#labHold') && $('#labHold').classList.contains('on'))) labPress(false); controls.enabled = true; down = null; return; }
+  if (VIEW === 'city') { down = null; return; }
   if (!down) return;
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
   if (e.target !== canvas || moved > 6 || dt > 650) return;
@@ -1640,6 +1722,8 @@ function setHover(u) {
 function pressBoot(on) { const p = parts.bootsel; if (!p) return; if (on) S.bootT = 1; else S.bootT = 0; }
 window.addEventListener('keydown', e => {
   const typing = /INPUT|SELECT|TEXTAREA/.test((document.activeElement || {}).tagName || '');
+  if (e.key === 'Escape' && SY.on && !CS.open) { if ($('#syModal').classList.contains('open')) closeSim(); else if (SY.drawer) closeDrawer(); else storyClose(); return; }
+  if (SY.on && !typing && !CS.open && !$('#syModal').classList.contains('open') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { syGo(SY.i + (e.key === 'ArrowRight' ? 1 : -1)); return; }
   if (e.key === 'Escape') { if (CS.open) courseClose(); else if (S.dieOpen) closeDie(); else if (LAB.on) labExit(); else if (S.sel) deselect(true); }
   else if (LAB.on && !typing && e.key === 'ArrowRight') labGo(LAB.i + 1);
   else if (LAB.on && !typing && e.key === 'ArrowLeft') labGo(LAB.i - 1);
@@ -1689,7 +1773,7 @@ function renderDetail() {
   const ab = $('#aBlink'); if (ab) ab.onclick = () => { S.blink = !S.blink; renderDetail(); };
   const ap = $('#aPress'); if (ap) { ap.onpointerdown = () => pressBoot(true); ap.onpointerup = ap.onpointerleave = () => pressBoot(false); ap.onkeydown = e => { if (e.key === ' ' || e.key === 'Enter') { pressBoot(true); setTimeout(() => pressBoot(false), 220); } }; }
   const af = $('#aFlip'); if (af) af.onclick = () => { setFlip(!S.flipped); setTimeout(renderDetail, 50); };
-  const acs = $('#aCourse'); if (acs) acs.onclick = () => courseOpen(PART_TOPIC[id]);
+  const acs = $('#aCourse'); if (acs) acs.onclick = () => storyOpen(PART_TOPIC[id]);
   detail.querySelectorAll('.links button').forEach(b => {
     b.onclick = () => select(b.dataset.go);
     b.onmouseenter = () => arcs.forEach((a, i) => a.hi = i === +b.dataset.i ? 1 : 0.15);
@@ -1880,7 +1964,7 @@ function closeDie(silent) {
 }
 
 /* ================= TOOLBAR ================= */
-$('#bReset').onclick = () => { if (LAB.on) { labGo(0); const [c, d] = LAB.sc.focus(); flyTo(c, d * 1.55 * aspectK(), LAB_DIR.clone()); return; } stopTour(); if (S.dieOpen) closeDie(true); setExplode(false); if (S.xray) setXray(false); deselect(false); setFlip(false); flyHome(); };
+$('#bReset').onclick = () => { if (SY.on) { syApply(); return; } if (LAB.on) { labGo(0); const [c, d] = LAB.sc.focus(); flyTo(c, d * 1.55 * aspectK(), LAB_DIR.clone()); return; } stopTour(); if (S.dieOpen) closeDie(true); setExplode(false); if (S.xray) setXray(false); deselect(false); setFlip(false); flyHome(); };
 $('#bExplode').onclick = () => { stopTour(); setExplode(!S.explodeT); if (!S.sel) flyTo(HERO.tgt.clone().setY(S.explodeT ? 4 : 0), (S.explodeT ? 88 : 74) * aspectK()); };
 $('#bXray').onclick = () => { stopTour(); setXray(!S.xray); };
 $('#bFlip').onclick = () => { stopTour(); if (S.sel && parts[S.sel].side === 'top') deselect(); setFlip(!S.flipped); };
@@ -1891,6 +1975,7 @@ $('#bParts').onclick = () => { const on = !document.body.classList.contains('sho
 const shift = new THREE.Vector2(), shiftT = new THREE.Vector2();
 function computeShift() {
   const W = innerWidth, H = innerHeight;
+  if (SY.on) { if (W < 760) shiftT.set(0, Math.min(H * 0.28, $('#story').offsetHeight * 0.5)); else shiftT.set(-214, 0); return; }
   if (LAB.on) { if (W < 760) shiftT.set(0, Math.min(H * 0.3, $('#labSide').offsetHeight * 0.5)); else shiftT.set(-218, ($('#labDock').offsetHeight + 70) * 0.45); return; }
   if (W < 760) { shiftT.set(0, S.sel ? Math.min(H * 0.26, detail.offsetHeight * 0.5) : 0); }
   else { const idx = document.body.classList.contains('idx-hidden') ? 0 : 252; const det = S.sel ? 390 : 0; shiftT.set((idx - det) / 2, 0); }
@@ -1986,7 +2071,7 @@ function frame(now) {
   camera.setViewOffset(W, H, -shift.x, shift.y, W, H);
   controls.update();
   // hover
-  if (pointerDirty && pointer && !down) { pointerDirty = false; if (LAB.on) labHover(); else setHover(pick(pointer.x, pointer.y)); }
+  if (pointerDirty && pointer && !down) { pointerDirty = false; if (LAB.on) labHover(); else if (VIEW !== 'city') setHover(pick(pointer.x, pointer.y)); }
   // callouts
   const showC = S.explode > 0.25 && !LAB.on;
   for (const id in parts) {
@@ -1998,7 +2083,8 @@ function frame(now) {
     p.callout.style.opacity = tmpV.z < 1 ? String(clamp((S.explode - 0.25) / 0.5, 0, 1) * (0.35 + 0.65 * p.ghost)) : '0';
   }
   labFrame(dt, time);
-  renderer.render(scene, camera);
+  syFrame(dt, time);
+  renderer.render(VIEW === 'city' ? CITY.scene : scene, camera);
 }
 const pinRings = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.07, 8, 48).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xf3d38e, transparent: true, opacity: .95, depthTest: false })); m.renderOrder = 18; m.visible = false; board.add(m); return m; });
 
@@ -2764,7 +2850,7 @@ function renderLabPanel() {
   $('#labScen').innerHTML = SCN.map(s => `<button role="tab" data-id="${s.id}" style="--c:${LV[s.level]}" aria-current="${s.id === sc.id}" title="${s.level}"><i></i>${s.short}</button>`).join('');
   $('#labTitle').textContent = sc.title;
   $('#labMeta').innerHTML = `<span style="color:${LV[sc.level]};border-color:${LV[sc.level]}55">${sc.level}</span><span>Peripheral <b>${sc.periph}</b></span><span>Pins <b>${sc.pins}</b></span>${LAB_TOPIC[sc.id] ? `<button class="btn" id="labCourse" style="padding:3px 8px;font-size:11px">Course topic →</button>` : ''}`;
-  const lc = $('#labCourse'); if (lc) lc.onclick = () => courseOpen(LAB_TOPIC[sc.id]);
+  const lc = $('#labCourse'); if (lc) lc.onclick = () => storyOpen(LAB_TOPIC[sc.id]);
   const el = $('#labInput'), inp = sc.input;
   if (!inp) { el.hidden = true; el.innerHTML = ''; }
   else if (inp.type === 'range') {
@@ -3463,7 +3549,7 @@ $('#cUnits').addEventListener('click', e => { const b = e.target.closest('button
 $('#cNav').addEventListener('click', e => { const b = e.target.closest('.c-topic'); if (b) renderCourseTopic(b.dataset.id); });
 $('#cSide').addEventListener('click', e => { const r = e.target.closest('[data-reg]'), g = e.target.closest('[data-go]'), n = e.target.closest('[data-id]'); if (r) openRegInMain(r.dataset.reg); else if (g) goSee(g.dataset.go); else if (n && n.classList.contains('btn')) renderCourseTopic(n.dataset.id); });
 $('#cClose').onclick = courseClose;
-$('#bCourse').onclick = () => CS.open ? courseClose() : courseOpen();
+$('#bCourse').onclick = () => { if (CS.open) courseClose(); else if (SY.on) storyClose(); else storyOpen(); };
 
 /* register finder */
 function renderRegFinder(main, side) {
@@ -4796,6 +4882,637 @@ STATIONS.ssi = (host) => {
   draw();
 };
 
+/* ================= CHIP CITY: SCENE ================= */
+const CITY = { scene: new THREE.Scene(), B: {}, gates: [], lights: {}, openId: null, built: false, labels: {} };
+const CB = {
+  core0: { t: 'CORE 0', s: 'Cortex-M0+', x: -55, z: -74, w: 26, d: 20, h: 22, ty: 'tower', c: '#e2b457' },
+  core1: { t: 'CORE 1', s: 'Cortex-M0+', x: -15, z: -74, w: 26, d: 20, h: 22, ty: 'tower', c: '#e2b457' },
+  sio: { t: 'SIO', s: 'single-cycle IO', x: -35, z: -102, w: 18, d: 9, h: 6, ty: 'gate', c: '#a6d86e' },
+  dma: { t: 'DMA', s: '12 channels', x: 40, z: -74, w: 34, d: 18, h: 8, ty: 'depot', c: '#7fb2ff' },
+  rom: { t: 'ROM', s: '16 KB', x: -92, z: 22, w: 14, d: 16, h: 9, ty: 'library', c: '#b7c0c9' },
+  xip: { t: 'XIP', s: 'flash cache', x: -75, z: 22, w: 14, d: 16, h: 9, ty: 'harbor', c: '#7fb2ff' },
+  sram0: { t: 'SRAM0', s: '64 KB', x: -57, z: 22, w: 10, d: 18, h: 10, ty: 'warehouse', c: '#7fb2ff' },
+  sram1: { t: 'SRAM1', s: '64 KB', x: -45, z: 22, w: 10, d: 18, h: 10, ty: 'warehouse', c: '#7fb2ff' },
+  sram2: { t: 'SRAM2', s: '64 KB', x: -33, z: 22, w: 10, d: 18, h: 10, ty: 'warehouse', c: '#7fb2ff' },
+  sram3: { t: 'SRAM3', s: '64 KB', x: -21, z: 22, w: 10, d: 18, h: 10, ty: 'warehouse', c: '#7fb2ff' },
+  sram4: { t: 'SRAM4', s: '4 KB', x: -9, z: 21, w: 9, d: 14, h: 7, ty: 'warehouse', c: '#7fb2ff' },
+  sram5: { t: 'SRAM5', s: '4 KB', x: 2, z: 21, w: 9, d: 14, h: 7, ty: 'warehouse', c: '#7fb2ff' },
+  pio0: { t: 'PIO0', s: '4 state machines', x: 18, z: 24, w: 11, d: 14, h: 9, ty: 'factory', c: '#a6d86e' },
+  pio1: { t: 'PIO1', s: '4 state machines', x: 31, z: 24, w: 11, d: 14, h: 9, ty: 'factory', c: '#a6d86e' },
+  usb: { t: 'USB', s: 'controller + PHY', x: 44, z: 24, w: 11, d: 14, h: 9, ty: 'station', c: '#b9a1ff' },
+  apb: { t: 'APB BRIDGE', s: 'slow lane', x: 72, z: 20, w: 18, d: 8, h: 5, ty: 'toll', c: '#ff8a66' },
+  uart: { t: 'UART', s: 'serial', x: 92, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  spi: { t: 'SPI', s: 'serial', x: 78, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  i2c: { t: 'I2C', s: 'serial', x: 64, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  adc: { t: 'ADC', s: '12-bit', x: 50, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#5fd0c3' },
+  pwm: { t: 'PWM', s: '16 channels', x: 36, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  timer: { t: 'TIMER', s: 'µs counter', x: 22, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  wdog: { t: 'WATCHDOG', s: 'reset guard', x: 8, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  rtc: { t: 'RTC', s: 'date & time', x: -6, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#ff8a66' },
+  iob: { t: 'IO BANK', s: 'pin functions', x: -20, z: 62, w: 11, d: 10, h: 6, ty: 'shop', c: '#e2b457' },
+  clock: { t: 'CLOCKS', s: 'XOSC · PLLs', x: 92, z: -102, w: 10, d: 10, h: 34, ty: 'clocktower', c: '#5fd0c3' },
+  vreg: { t: 'VREG', s: '1.1 V core power', x: -95, z: -102, w: 16, d: 12, h: 8, ty: 'plant', c: '#ff8a66' },
+  flash: { t: 'FLASH CHIP', s: '2 MB · off-chip', x: -146, z: 22, w: 24, d: 12, h: 5, ty: 'ship', c: '#7fb2ff' },
+};
+const gateX = g => -87 + g * 6;
+function cityTex(w, h, draw, srgb = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); if (srgb) t.encoding = THREE.sRGBEncoding; t.anisotropy = ANISO; return t; }
+function signTex(t, s, col) {
+  return cityTex(512, 160, (g, W, H) => {
+    g.fillStyle = 'rgba(10,13,17,.92)'; g.beginPath(); g.roundRect ? g.roundRect(4, 4, W - 8, H - 8, 18) : g.rect(4, 4, W - 8, H - 8); g.fill();
+    g.strokeStyle = col; g.lineWidth = 5; g.stroke();
+    g.fillStyle = '#f4f0e6'; g.textAlign = 'center'; g.font = '700 64px "Saira Semi Condensed", sans-serif'; g.fillText(t, W / 2, s ? 78 : 102);
+    if (s) { g.fillStyle = col; g.font = '500 34px "IBM Plex Mono", monospace'; g.fillText(s, W / 2, 128); }
+  });
+}
+function floorTex(lines, col) {
+  return cityTex(512, 512, (g, W, H) => {
+    g.fillStyle = '#10151b'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(255,255,255,.06)'; g.lineWidth = 1;
+    for (let i = 0; i <= W; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, H); g.moveTo(0, i); g.lineTo(W, i); g.stroke(); }
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach(([txt, x, y, size, c]) => { g.fillStyle = c || col; g.font = `600 ${size || 34}px "Saira Semi Condensed", sans-serif`; g.fillText(txt, x * W, y * H); });
+  });
+}
+let winTexBase = null;
+function windowsTex() {
+  if (!winTexBase) winTexBase = cityTex(64, 64, (g) => { g.fillStyle = '#141a22'; g.fillRect(0, 0, 64, 64); for (let y = 4; y < 64; y += 16) for (let x = 4; x < 64; x += 16) { const on = Math.random() < 0.55; g.fillStyle = on ? `rgba(255,${200 + Math.random() * 40 | 0},140,${0.55 + Math.random() * 0.4})` : 'rgba(80,110,140,.25)'; g.fillRect(x, y, 9, 9); } });
+  const t = winTexBase.clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.needsUpdate = true; return t;
+}
+const CM = {
+  asphalt: new THREE.MeshStandardMaterial({ color: '#1b2027', roughness: .9 }),
+  plaza: null, wall: new THREE.MeshStandardMaterial({ color: '#2a2f38', roughness: .8 }),
+  pillar: new THREE.MeshStandardMaterial({ color: '#3a414c', roughness: .6, metalness: .3 }),
+  glow: c => new THREE.MeshStandardMaterial({ color: '#000', emissive: c, emissiveIntensity: 1.2, roughness: .4, toneMapped: false }),
+};
+function cmesh(parent, geo, mat, x = 0, y = 0, z = 0, cast = true) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true; parent.add(m); return m; }
+function road(x1, z1, x2, z2, w = 6, y = 0.12, mat = CM.asphalt) {
+  const L = Math.hypot(x2 - x1, z2 - z1) + w * 0.5, g = new THREE.BoxGeometry(L, 0.24, w);
+  const m = cmesh(CITY.scene, g, mat, (x1 + x2) / 2, y, (z1 + z2) / 2, false); m.rotation.y = -Math.atan2(z2 - z1, x2 - x1);
+  if (L > 10 && y < 1) { const dash = cmesh(CITY.scene, new THREE.PlaneGeometry(L - 2, 0.35).rotateX(-Math.PI / 2), CITY.dashMat, (x1 + x2) / 2, y + 0.13, (z1 + z2) / 2, false); dash.rotation.y = m.rotation.y; }
+  return m;
+}
+function buildCity() {
+  const S = CITY.scene; S.background = new THREE.Color('#090c11'); S.fog = new THREE.Fog('#090c11', 260, 560); S.environment = scene.environment;
+  S.add(new THREE.HemisphereLight(0xa9c2ff, 0x1a1208, 0.55));
+  const sun = new THREE.DirectionalLight(0xfff0dc, 1.05); sun.position.set(80, 160, 120); sun.target.position.set(0, 0, -10);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -170, right: 170, top: 150, bottom: -150, near: 20, far: 420 }); sun.shadow.bias = -0.0005;
+  S.add(sun, sun.target);
+  const rim = new THREE.DirectionalLight(0x7fb2ff, 0.35); rim.position.set(-120, 60, -140); S.add(rim);
+  CITY.dashMat = new THREE.MeshBasicMaterial({ map: cityTex(64, 8, (g) => { g.fillStyle = 'rgba(0,0,0,0)'; g.clearRect(0, 0, 64, 8); g.fillStyle = 'rgba(240,220,160,.55)'; g.fillRect(0, 2, 34, 4); }), transparent: true, depthWrite: false });
+  CITY.dashMat.map.wrapS = THREE.RepeatWrapping; CITY.dashMat.map.repeat.set(12, 1);
+  // ground + die plate
+  cmesh(S, new THREE.PlaneGeometry(900, 900).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#07090c', roughness: 1 }), 0, -0.05, 0, false);
+  const dieT = cityTex(1024, 1024, (g, W) => { const gr = g.createLinearGradient(0, 0, W, W); gr.addColorStop(0, '#1a1528'); gr.addColorStop(.5, '#0f1d22'); gr.addColorStop(1, '#1d1a12'); g.fillStyle = gr; g.fillRect(0, 0, W, W); g.strokeStyle = 'rgba(160,200,255,.05)'; for (let i = 0; i < W; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, W); g.moveTo(0, i); g.lineTo(W, i); g.stroke(); } });
+  cmesh(S, new THREE.PlaneGeometry(228, 222).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: dieT, roughness: .85 }), 0, 0, -10, false);
+  // IO ring wall with gates
+  const wallH = 3.2, WZ0 = -121, WZ1 = 99, WX = 113;
+  const wall = (x1, z1, x2, z2) => { const L = Math.hypot(x2 - x1, z2 - z1); const m = cmesh(S, new THREE.BoxGeometry(L, wallH, 1.6), CM.wall, (x1 + x2) / 2, wallH / 2, (z1 + z2) / 2); m.rotation.y = -Math.atan2(z2 - z1, x2 - x1); };
+  wall(-WX, WZ0, WX, WZ0); wall(-WX, WZ0, -WX, 26); wall(-WX, 40, -WX, WZ1); wall(WX, WZ0, WX, -66); wall(WX, -54, WX, 30); wall(WX, 44, WX, WZ1);
+  let px = -WX; for (let g = 0; g <= 30; g++) { const x2 = g < 30 ? gateX(g) - 2.2 : WX; wall(px, WZ1, x2, WZ1); px = gateX(g) + 2.2; }
+  for (let g = 0; g < 30; g++) { const x = gateX(g), mat = CM.glow('#3a4048'); mat.emissiveIntensity = 0.15; cmesh(S, new THREE.BoxGeometry(4.4, 0.6, 1.8), mat, x, wallH + 0.4, WZ1); CITY.gates.push(mat); }
+  const gl = cityTex(1024, 48, (g, W) => { g.fillStyle = '#c9cdd2'; g.font = '600 22px "IBM Plex Mono", monospace'; g.textAlign = 'center'; for (let i = 0; i < 30; i++) g.fillText('GP' + i, (gateX(i) + 113) / 226 * W, 32); });
+  cmesh(S, new THREE.PlaneGeometry(226, 10.6).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: gl, transparent: true }), 0, 0.3, 92, false);
+  const tag = (t, x, z, ry = 0) => { const p = cmesh(S, new THREE.PlaneGeometry(30, 9.4), new THREE.MeshBasicMaterial({ map: signTex(t, '', '#5fd0c3'), transparent: true }), x, 7, z, false); p.rotation.y = ry; };
+  tag('QSPI PINS', -WX - 1, 33, Math.PI / 2); tag('USB PINS', WX + 1, 37, -Math.PI / 2); tag('SWD', WX + 1, -60, -Math.PI / 2); tag('GPIO PINS · IO RING', 0, WZ1 + 1.2);
+  // plaza (bus fabric)
+  const pT = cityTex(1024, 160, (g, W, H) => { g.fillStyle = '#1d232b'; g.fillRect(0, 0, W, H); g.strokeStyle = 'rgba(240,220,160,.35)'; g.setLineDash([18, 14]); g.lineWidth = 3; g.beginPath(); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke(); g.setLineDash([]); g.fillStyle = 'rgba(226,180,87,.09)'; g.font = '700 54px "Saira Semi Condensed", sans-serif'; g.textAlign = 'center'; g.fillText('BUS FABRIC · AHB-LITE CROSSBAR', W / 2, H / 2 + 20); });
+  cmesh(S, new THREE.BoxGeometry(206, 0.3, 32), new THREE.MeshStandardMaterial({ map: pT, roughness: .85 }), 0, 0.15, -28, false);
+  [-55, -15, 31, 49].forEach(x => road(x, -64, x, -44));
+  [-92, -75, -57, -45, -33, -21, -9, 2, 31, 72].forEach(x => road(x, -12, x, 12, 5));
+  road(18, 4, 44, 4, 4); road(18, 4, 18, 16, 4); road(44, 4, 44, 16, 4);
+  road(72, 25, 72, 48); road(-26, 48, 100, 48); ['uart', 'spi', 'i2c', 'adc', 'pwm', 'timer', 'wdog', 'rtc', 'iob'].forEach(k => { road(CB[k].x, 48, CB[k].x, 56, 4); road(CB[k].x, 67, CB[k].x, 80, 3.5); });
+  road(-95, 80, 100, 80, 5); cmesh(S, new THREE.BoxGeometry(186, 0.2, 13), CM.asphalt, 0, 0.1, 89, false);
+  road(18, 31, 18, 48, 4); road(31, 31, 31, 48, 4); road(-30, 48, -30, 80, 4); road(100, 48, 100, 80, 4);
+  road(-75, 30, -75, 34, 5); road(-75, 34, -134, 34, 5); road(44, 31, 44, 38, 4); road(44, 38, 113, 38, 4);
+  road(-55, -84, -55, -98, 4); road(-55, -98, -44, -98, 4); road(-15, -84, -15, -98, 4); road(-15, -98, -26, -98, 4);
+  // SIO express (elevated track)
+  const xm = CM.glow('#5fd0c3'); xm.emissiveIntensity = .35; xm.transparent = true; xm.opacity = .85;
+  [[-35, -107, -106, -107], [-106, -107, -106, 86], [-106, 86, 92, 86]].forEach(([a, b, c, d]) => road(a, b, c, d, 2.4, 7.2, xm));
+  for (let z = -100; z <= 80; z += 20) cmesh(S, new THREE.CylinderGeometry(0.5, 0.5, 7, 8), CM.pillar, -106, 3.5, z);
+  for (let x = -90; x <= 90; x += 20) cmesh(S, new THREE.CylinderGeometry(0.5, 0.5, 7, 8), CM.pillar, x, 3.5, 86);
+  // traffic lights at plaza exits
+  [-92, -75, -57, -45, -33, -21, -9, 2, 31, 72].forEach(x => { const g = new THREE.Group(); g.position.set(x + 3.2, 0, -11); S.add(g); cmesh(g, new THREE.CylinderGeometry(.25, .25, 5, 6), CM.pillar, 0, 2.5, 0); const red = CM.glow('#ff4a3a'), grn = CM.glow('#3aff7a'); red.emissiveIntensity = .1; grn.emissiveIntensity = 1; cmesh(g, new THREE.SphereGeometry(.55, 10, 8), red, 0, 5.2, 0); cmesh(g, new THREE.SphereGeometry(.55, 10, 8), grn, 0, 4, 0); CITY.lights[x] = { red, grn }; });
+  for (const id in CB) buildBuilding(id);
+  S.traverse(o => { if (o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = Math.min(o.material.envMapIntensity, .22); });
+  CITY.built = true;
+}
+function buildBuilding(id) {
+  const b = CB[id], S = CITY.scene, g = new THREE.Group(); g.position.set(b.x, 0, b.z); S.add(g);
+  const B = { id, def: b, group: g, shell: [], mats: [], inner: new THREE.Group(), open: 0, openT: 0, focus: 0 };
+  B.inner.visible = false; g.add(B.inner); CITY.B[id] = B;
+  const mat = o => { const m = new THREE.MeshStandardMaterial(Object.assign({ roughness: .55, metalness: .1, transparent: true, opacity: 1 }, o)); B.mats.push(m); return m; };
+  const shell = (geo, m, x = 0, y = 0, z = 0) => { const me = cmesh(g, geo, m, x, y, z); B.shell.push(me); return me; };
+  const { w, d, h } = b, base = new THREE.Color(b.c).multiplyScalar(.6);
+  const body = (col, emis) => { const t = windowsTex(); t.repeat.set(Math.max(1, w / 5), Math.max(1, h / 5)); return mat({ color: col || '#2a313b', map: t, emissive: '#ffffff', emissiveMap: t, emissiveIntensity: emis ?? .55 }); };
+  if (b.ty === 'tower') { shell(new THREE.BoxGeometry(w, h, d), body('#3a4250', .7), 0, h / 2, 0); shell(new THREE.BoxGeometry(w * .7, 3, d * .7), mat({ color: base, emissive: base, emissiveIntensity: .25 }), 0, h + 1.5, 0); shell(new THREE.CylinderGeometry(.3, .3, 8, 6), mat({ color: '#9aa4ad' }), w * .25, h + 7, 0); }
+  else if (b.ty === 'warehouse') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#2b3846' }), 0, h / 2, 0); const roof = new THREE.Shape([new THREE.Vector2(-w / 2 - .3, 0), new THREE.Vector2(w / 2 + .3, 0), new THREE.Vector2(0, 2.6)]); const rg = new THREE.ExtrudeGeometry(roof, { depth: d + .4, bevelEnabled: false }); rg.translate(0, 0, -d / 2 - .2); shell(rg, mat({ color: base, roughness: .7 }), 0, h, 0); shell(new THREE.BoxGeometry(w * .5, h * .5, .2), mat({ color: '#11161c' }), 0, h * .25, d / 2 + .05); }
+  else if (b.ty === 'library') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#3b3f46' }), 0, h / 2, 0); for (let i = 0; i < 4; i++) shell(new THREE.CylinderGeometry(.6, .6, h, 10), mat({ color: '#c9cdd2' }), -w / 2 + 1.8 + i * (w - 3.6) / 3, h / 2, d / 2 + 1); const p = new THREE.Shape([new THREE.Vector2(-w / 2 - .5, 0), new THREE.Vector2(w / 2 + .5, 0), new THREE.Vector2(0, 3)]); const pg = new THREE.ExtrudeGeometry(p, { depth: d + 2.5, bevelEnabled: false }); pg.translate(0, 0, -d / 2); shell(pg, mat({ color: '#b7c0c9' }), 0, h, 0); }
+  else if (b.ty === 'harbor') { shell(new THREE.BoxGeometry(w, h, d), body('#263446', .35), 0, h / 2, 0); shell(new THREE.BoxGeometry(1, 14, 1), mat({ color: '#e2b457' }), -w / 2 + 1, 7 + h / 2, d / 2 - 1); shell(new THREE.BoxGeometry(10, .8, .8), mat({ color: '#e2b457' }), -w / 2 + 5, h + 6, d / 2 - 1); }
+  else if (b.ty === 'depot') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#25303d' }), 0, h / 2, 0); for (let i = 0; i < 6; i++) shell(new THREE.BoxGeometry(3.6, h * .6, .2), mat({ color: '#0d1116' }), -w / 2 + 3 + i * 5.6, h * .3, d / 2 + .05); shell(new THREE.BoxGeometry(w, .6, d), mat({ color: base, emissive: base, emissiveIntensity: .2 }), 0, h + .3, 0); }
+  else if (b.ty === 'factory') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#28342a' }), 0, h / 2, 0); for (let i = 0; i < 3; i++) { const s = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(w, 0), new THREE.Vector2(w, 2.4)]); const sg = new THREE.ExtrudeGeometry(s, { depth: d / 3, bevelEnabled: false }); shell(sg, mat({ color: base, roughness: .7 }), -w / 2, h, -d / 2 + i * d / 3); } shell(new THREE.CylinderGeometry(.8, 1, 7, 10), mat({ color: '#59636c' }), w / 2 - 1.5, h + 3.5, -d / 2 + 1.5); }
+  else if (b.ty === 'station') { shell(new THREE.BoxGeometry(w, h, d), body('#2d2a3e', .5), 0, h / 2, 0); shell(new THREE.CylinderGeometry(w / 2, w / 2, d, 20, 1, false, 0, Math.PI).rotateZ(Math.PI / 2).rotateY(Math.PI / 2), mat({ color: base, roughness: .5 }), 0, h, 0); }
+  else if (b.ty === 'toll') { shell(new THREE.BoxGeometry(w + 6, .6, d + 2), mat({ color: base, emissive: base, emissiveIntensity: .2 }), 0, h + 1, 0); for (const sx of [-1, 1]) for (const sz of [-1, 1]) shell(new THREE.BoxGeometry(.6, h + 1, .6), mat({ color: '#59636c' }), sx * (w / 2 + 2), (h + 1) / 2, sz * (d / 2)); shell(new THREE.BoxGeometry(2.4, 3.4, 2.4), mat({ color: '#3a414c' }), 3.6, 1.7, 0); const arm = new THREE.Group(); arm.position.set(1.8, 2.8, 0); g.add(arm); cmesh(arm, new THREE.BoxGeometry(5.5, .35, .35), mat({ color: '#ff8a66', emissive: '#ff5a3a', emissiveIntensity: .4 }), -2.75, 0, 0); B.arm = arm; }
+  else if (b.ty === 'shop') { shell(new THREE.BoxGeometry(w, h, d), body('#2f2a2a', .45), 0, h / 2, 0); const aw = shell(new THREE.BoxGeometry(w + .6, .3, 2.6), mat({ color: base, emissive: base, emissiveIntensity: .3 }), 0, h * .55, d / 2 + 1.1); aw.rotation.x = .35; }
+  else if (b.ty === 'gate') { shell(new THREE.BoxGeometry(w, h, d), body('#25302a', .5), 0, h / 2, 0); shell(new THREE.BoxGeometry(w, .6, d), mat({ color: base, emissive: base, emissiveIntensity: .4 }), 0, h + .3, 0); }
+  else if (b.ty === 'clocktower') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#2b3540' }), 0, h / 2, 0); shell(new THREE.ConeGeometry(w * .75, 7, 4).rotateY(Math.PI / 4), mat({ color: base, emissive: base, emissiveIntensity: .3 }), 0, h + 3.5, 0); const face = cmesh(g, new THREE.CircleGeometry(3.6, 32), new THREE.MeshBasicMaterial({ color: '#f2eee4' }), 0, h - 5, d / 2 + .06, false); const hand = cmesh(g, new THREE.BoxGeometry(.3, 3, .1), new THREE.MeshBasicMaterial({ color: '#0d1216' }), 0, h - 5, d / 2 + .12, false); hand.geometry.translate(0, 1.3, 0); B.hand = hand; B.face = face; }
+  else if (b.ty === 'plant') { shell(new THREE.BoxGeometry(w, h, d), mat({ color: '#30302c' }), 0, h / 2, 0); for (const sx of [-1, 1]) shell(new THREE.CylinderGeometry(1.2, 1.6, 14, 12), mat({ color: '#59636c' }), sx * 4, 7, -2); shell(new THREE.BoxGeometry(5, 3, 4), mat({ color: base, emissive: base, emissiveIntensity: .6 }), 0, h + 1.5, 3); }
+  else if (b.ty === 'ship') { const hs = new THREE.Shape([new THREE.Vector2(-w / 2, 0), new THREE.Vector2(w / 2 - 2, 0), new THREE.Vector2(w / 2 + 2, 2.4), new THREE.Vector2(-w / 2 - 1, 2.4)]); const hg = new THREE.ExtrudeGeometry(hs, { depth: d, bevelEnabled: false }); hg.translate(0, 0, -d / 2); shell(hg, mat({ color: '#203040' }), 0, 0, 0); for (let i = 0; i < 4; i++) shell(new THREE.BoxGeometry(4.4, 2.6, d * .7), mat({ color: FCOL[i % FCOL.length], roughness: .6 }), -w / 2 + 3.5 + i * 5, 3.7, 0); }
+  // sign
+  const sw = Math.max(10, Math.min(24, w * 1.15)), sh = sw * 160 / 512, sy = (b.ty === 'clocktower' ? h + 9 : b.ty === 'toll' ? h + 3.6 : h + (b.ty === 'warehouse' || b.ty === 'factory' || b.ty === 'library' ? 4.6 : 2.6)) + sh / 2;
+  const sign = cmesh(g, new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: signTex(b.t, b.s, b.c), transparent: true, depthWrite: false }), 0, sy, d / 2 * .2, false); sign.renderOrder = 5; B.sign = sign;
+  buildInterior(B);
+}
+function buildInterior(B) {
+  const b = B.def, I = B.inner, { w, d } = b, col = b.c;
+  const F = { tower: [['FETCH', .2, .3], ['DECODE', .5, .3], ['EXECUTE', .8, .3], ['REGISTERS r0–r12 · SP · LR · PC', .5, .62, 26, '#9fd8cf'], ['ALU ×', .25, .86, 30], ['NVIC · interrupt desk', .72, .86, 26, '#ff8a66']],
+    warehouse: [['row 0', .5, .18, 28], ['row 1', .5, .38, 28], ['row 2', .5, .58, 28], ['row 3', .5, .78, 28]],
+    library: [['USB bootloader', .5, .25, 30], ['UF2 drag & drop', .5, .45, 30], ['float library', .5, .65, 30], ['flash helpers', .5, .85, 30]],
+    harbor: [['16 KB cache', .5, .3, 40], ['2 ways · 8-byte lines', .5, .55, 30], ['from flash ←', .5, .8, 30, '#9fd8cf']],
+    depot: [...Array(12)].map((_, i) => [`CH${i}`, .08 + (i % 6) * .168, i < 6 ? .3 : .72, 26]),
+    factory: [['SM0', .25, .3], ['SM1', .75, .3], ['SM2', .25, .7], ['SM3', .75, .7], ['32-instruction memory', .5, .5, 24, '#9fd8cf']],
+    station: [['PHY', .2, .3], ['SIE', .5, .3], ['DPSRAM 4 KB', .5, .7, 32, '#9fd8cf']],
+    gate: [['CPUID', .12, .3, 26], ['GPIO', .32, .3, 26], ['FIFO ⇄', .52, .3, 26], ['SPINLOCK', .74, .3, 24], ['DIVIDER', .3, .72, 26], ['INTERP', .7, .72, 26]],
+    shop: [['registers', .5, .3, 30], ['FIFO · logic', .5, .65, 30]], toll: [], clocktower: [['XOSC 12 MHz', .5, .3, 30], ['PLL_SYS · PLL_USB', .5, .65, 26]], plant: [['1.1 V', .5, .5, 50]], ship: [['W25Q16JV', .5, .5, 40]] }[b.ty] || [];
+  const floor = cmesh(I, new THREE.PlaneGeometry(w - .6, d - .6).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: floorTex(F, col), roughness: .8, emissive: '#ffffff', emissiveIntensity: .25, emissiveMap: null }), 0, .55, 0, false);
+  floor.material.emissiveMap = floor.material.map;
+  if (b.ty === 'tower') {
+    B.instr = cmesh(I, new THREE.BoxGeometry(2, 2, 2), CM.glow('#e2b457'), -w * .3, 1.6, -d * .2);
+    for (let i = 0; i < 16; i++) cmesh(I, new THREE.BoxGeometry(1.1, 1.8, .8), new THREE.MeshStandardMaterial({ color: i > 12 ? '#5fd0c3' : '#7fb2ff', roughness: .4 }), -w * .42 + i * (w * .84 / 15), 1.5, d * .12);
+    B.bell = cmesh(I, new THREE.SphereGeometry(1.1, 14, 10), CM.glow('#ff4a3a'), w * .22, 1.8, d * .36); B.bell.material.emissiveIntensity = .15;
+    cmesh(I, new THREE.BoxGeometry(4, 2, 2.4), new THREE.MeshStandardMaterial({ color: '#e2b457', roughness: .4 }), -w * .25, 1.6, d * .36);
+  }
+  if (b.ty === 'factory') { B.robots = []; [[-.25, -.2], [.25, -.2], [-.25, .2], [.25, .2]].forEach(([fx, fz]) => { const r = new THREE.Group(); r.position.set(fx * w, .6, fz * d); I.add(r); cmesh(r, new THREE.CylinderGeometry(.8, 1, 1.6, 12), new THREE.MeshStandardMaterial({ color: '#59636c' }), 0, .8, 0); const arm = new THREE.Group(); arm.position.y = 1.8; r.add(arm); cmesh(arm, new THREE.BoxGeometry(3, .5, .5), CM.glow('#a6d86e'), 1.4, 0, 0); B.robots.push(arm); }); }
+  if (b.ty === 'warehouse') { B.boxes = []; for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) { const m = cmesh(I, new THREE.BoxGeometry(2.2, 2.2, 2.2), new THREE.MeshStandardMaterial({ color: '#7fb2ff', emissive: '#2a5aa8', emissiveIntensity: .4, transparent: true, opacity: 0 }), (c - .5) * 3.6, 1.7, -d * .32 + r * d * .2); B.boxes.push(m); } }
+  if (b.ty === 'depot') for (let i = 0; i < 6; i++) cmesh(I, new THREE.BoxGeometry(4, 2.2, 2.2), new THREE.MeshStandardMaterial({ color: '#7fb2ff', roughness: .5 }), -w * .42 + i * (w * .84 / 5), 1.7, d * .22);
+}
+function cityOpen(ids) { const set = new Set([].concat(ids || [])); for (const k in CITY.B) CITY.B[k].openT = set.has(k) ? 1 : 0; }
+function cityFocus(ids) { const set = new Set(ids || []); for (const k in CITY.B) CITY.B[k].focus = set.size ? (set.has(k) ? 1 : 0) : 0.5; }
+function cityTick(dt, t) {
+  for (const k in CITY.B) {
+    const B = CITY.B[k];
+    B.open += (B.openT - B.open) * Math.min(1, dt * 4);
+    const dim = B.focus === 0 ? 0.35 : 1, shellA = (1 - B.open * 0.93) * dim;
+    B.mats.forEach(m => { if (m.userData.ei == null) m.userData.ei = m.emissiveIntensity; m.opacity = shellA; m.emissiveIntensity = m.userData.ei * (1 - B.open * 0.9); m.depthWrite = shellA > 0.6; });
+    B.inner.visible = B.open > 0.05;
+    if (B.instr && B.inner.visible) { const p = (t * 0.5) % 1, w = B.def.w; B.instr.position.x = -w * .3 + p * w * .6; B.instr.rotation.y = t; }
+    if (B.robots && B.inner.visible) B.robots.forEach((a, i) => { a.rotation.y = t * (1.2 + i * .3) + i; });
+    if (B.hand) B.hand.rotation.z = -t * 1.5;
+    if (B.bell) B.bell.material.emissiveIntensity = CITY.bellOn ? (Math.sin(t * 14) > 0 ? 2.2 : .3) : .15;
+    if (B.sign) B.sign.material.opacity = B.focus === 0 ? 0.4 : 1;
+  }
+}
+
+/* ================= CHIP CITY: TRAFFIC ================= */
+const TRAF = { cars: [], jobs: [], wires: [], pulses: [], rings: [], power: [], labelCache: {}, barrier: 0, barrierT: 0, dimmed: new Set() };
+const KIND = { instr: ['#e2b457', 3.4], data: ['#5fd0c3', 3.4], write: ['#ff8a66', 3.4], dma: ['#7fb2ff', 5.4], pod: ['#9ff3e6', 2.6], usb: ['#b9a1ff', 3.4], bit: ['#f3d38e', 2.2] };
+const MX = { core0: -55, core1: -15, dmaR: 31, dmaW: 49 };
+const SX = { rom: -92, xip: -75, sram0: -57, sram1: -45, sram2: -33, sram3: -21, sram4: -9, sram5: 2, pio0: 31, pio1: 31, usb: 31, apb: 72 };
+function labelTex(t, col) { const k = t + col; if (TRAF.labelCache[k]) return TRAF.labelCache[k]; const tx = cityTex(256, 72, (g, W, H) => { g.fillStyle = 'rgba(8,10,14,.88)'; g.beginPath(); g.roundRect ? g.roundRect(2, 2, W - 4, H - 4, 14) : g.rect(2, 2, W - 4, H - 4); g.fill(); g.strokeStyle = col; g.lineWidth = 4; g.stroke(); g.fillStyle = '#fff'; g.font = '600 38px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, W / 2, H / 2 + 2); }); TRAF.labelCache[k] = tx; return tx; }
+function makeCar(kind, label) {
+  const [col, L] = KIND[kind] || KIND.data, g = new THREE.Group(), c = new THREE.Color(col);
+  const body = new THREE.MeshStandardMaterial({ color: c.clone().multiplyScalar(.45), emissive: c, emissiveIntensity: .42, roughness: .75, metalness: 0, envMapIntensity: .1, toneMapped: false });
+  if (kind === 'dma') { cmesh(g, new THREE.BoxGeometry(1.6, 1.6, 1.9), body, L / 2 - .8, 1, 0); cmesh(g, new THREE.BoxGeometry(L - 1.8, 2.2, 2), new THREE.MeshStandardMaterial({ color: '#d8dee6', roughness: .6 }), -.9, 1.3, 0); }
+  else if (kind === 'pod') { cmesh(g, new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(.7, 1.6, 4, 10).rotateZ(Math.PI / 2) : new THREE.BoxGeometry(L, 1.2, 1.4), body, 0, .9, 0); }
+  else { cmesh(g, new THREE.BoxGeometry(L, 1.1, 1.9), body, 0, .75, 0); cmesh(g, new THREE.BoxGeometry(L * .5, .8, 1.6), new THREE.MeshStandardMaterial({ color: '#0d141c', roughness: .2, metalness: .5 }), -L * .05, 1.65, 0); }
+  cmesh(g, new THREE.BoxGeometry(.2, .3, 1.5), CM.glow('#fff6d8'), L / 2 + .02, .8, 0, false);
+  if (label) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(label, col), depthWrite: false, depthTest: false, transparent: true })); sp.scale.set(8.4, 2.4, 1); sp.position.y = 4.6; sp.renderOrder = 8; g.add(sp); }
+  return g;
+}
+function offsetPath(pts, off) {
+  if (!off) return pts;
+  return pts.map((p, i) => { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; const dx = b[0] - a[0], dz = b[1] - a[1], l = Math.hypot(dx, dz) || 1; return [p[0] - dz / l * off, p[1] + dx / l * off, p[2]]; });
+}
+function spawn(pts, o = {}) {
+  pts = offsetPath(pts, o.lane ?? 1.4);
+  const mesh = makeCar(o.kind || 'data', o.label), lens = [0];
+  for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const car = { mesh, pts, lens, s: 0, total: lens[lens.length - 1], speed: o.speed || 26, waits: (o.waits || []).slice().sort((a, b) => a.at - b.at), wait: null, onArrive: o.onArrive, y: o.y ?? 0, fade: 1 };
+  CITY.scene.add(mesh); TRAF.cars.push(car); placeCar(car); return car;
+}
+function placeCar(c) {
+  let i = 1; while (i < c.lens.length - 1 && c.lens[i] < c.s) i++;
+  const a = c.pts[i - 1], b = c.pts[i], f = (c.s - c.lens[i - 1]) / Math.max(1e-6, c.lens[i] - c.lens[i - 1]);
+  const ya = a[2] ?? c.y, yb = b[2] ?? c.y;
+  c.mesh.position.set(lerp(a[0], b[0], f), lerp(ya, yb, f), lerp(a[1], b[1], f));
+  const dx = b[0] - a[0], dz = b[1] - a[1]; if (dx || dz) c.mesh.rotation.y = -Math.atan2(dz, dx);
+}
+function pathLenTo(pts, idx) { let s = 0; for (let i = 1; i <= idx; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
+// routes
+const RT = {
+  bus(m, s) { const mx = MX[m], sx = SX[s]; const p = [[mx, m.startsWith('dma') ? -65 : -64], [mx, -40], [sx, -18], [sx, -12], [sx, 4]]; if (s === 'pio0') p.push([18, 4], [18, 15]); else if (s === 'usb') p.push([44, 4], [44, 15]); else if (s === 'apb') p.push([72, 22], [72, 48]); else p.push([sx, 12]); return p; },
+  toShop(k) { return [...RT.bus('core0', 'apb'), [CB[k].x, 48], [CB[k].x, 56]]; },
+  shopToGate(k, g) { return [[CB[k].x, 67], [CB[k].x, 80], [gateX(g), 80], [gateX(g), 96]]; },
+  pioToGate(id, g) { const x = CB[id].x; return [[x, 31], [x, 48], [-30, 48], [-30, 80], [gateX(g), 80], [gateX(g), 96]]; },
+  coreToSio(c) { const x = CB[c].x; return [[x, -84], [x, -98], [c === 'core0' ? -44 : -26, -98]]; },
+  sioExpress(g) { return [[-35, -104, 7.4], [-35, -107, 7.4], [-106, -107, 7.4], [-106, 86, 7.4], [gateX(g), 86, 7.4], [gateX(g), 95, 3]]; },
+  flashToXip() { return [[-134, 34], [-75, 34], [-75, 30]]; },
+  slaveToShop(s, k) { const sx = SX[s]; return [[sx, 12], [sx, -12], [sx, -20], [72, -20], [72, -12], [72, 22], [72, 48], [CB[k].x, 48], [CB[k].x, 56]]; },
+  shopToSlave(k, s) { return RT.rev(RT.slaveToShop(s, k)); },
+  rev(p) { return p.slice().reverse(); },
+};
+const TOLL_AT = p => pathLenTo(p, 5) + 8;
+// wires (overhead signal lines)
+function topOf(id) { const b = CB[id]; return new THREE.Vector3(b.x, b.h + 2, b.z); }
+function wireBetween(a, b, col = '#ff4a3a') {
+  const A = a.isVector3 ? a : topOf(a), Bv = b.isVector3 ? b : topOf(b), mid = A.clone().lerp(Bv, .5); mid.y = Math.max(A.y, Bv.y) + 10 + A.distanceTo(Bv) * .12;
+  const curve = new THREE.QuadraticBezierCurve3(A, mid, Bv), geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(40));
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: .55 })); CITY.scene.add(line);
+  const w = { curve, line, col }; TRAF.wires.push(w); return w;
+}
+function pulse(w, onArrive, dur = 1.1) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX.glow, color: w.col, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); sp.scale.setScalar(5); CITY.scene.add(sp); TRAF.pulses.push({ w, sp, t: 0, dur, onArrive }); }
+function setGate(g, on, col = '#3aff7a') { const m = CITY.gates[g]; if (!m) return; m.color.set(on ? col : '#3a4048'); m.emissive.set(on ? col : '#3a4048'); m.emissiveIntensity = on ? 1.6 : .15; }
+function setLight(x, green) { const L = CITY.lights[x]; if (!L) return; L.red.emissiveIntensity = green ? .1 : 1.6; L.grn.emissiveIntensity = green ? 1.4 : .08; }
+function clearTraffic() {
+  TRAF.cars.forEach(c => CITY.scene.remove(c.mesh)); TRAF.cars = [];
+  TRAF.wires.forEach(w => { CITY.scene.remove(w.line); w.line.geometry.dispose(); }); TRAF.wires = [];
+  TRAF.pulses.forEach(p => CITY.scene.remove(p.sp)); TRAF.pulses = [];
+  TRAF.rings.forEach(r => CITY.scene.remove(r.m)); TRAF.rings = []; TRAF.power.forEach(l => CITY.scene.remove(l)); TRAF.power = [];
+  TRAF.jobs = []; TRAF.barrierT = 0; TRAF.dimmed.clear(); CITY.bellOn = false; TRAF.gateBlink = null;
+  for (let g = 0; g < 30; g++) setGate(g, false); for (const x in CITY.lights) setLight(+x, true);
+}
+const P = {
+  every(sec, fn, phase = 0) { TRAF.jobs.push({ sec, fn, acc: sec * (1 - phase) }); fn.first = true; },
+  ring() { const m = new THREE.Mesh(new THREE.TorusGeometry(1, .18, 6, 64).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#5fd0c3', transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false })); m.position.set(CB.clock.x, 1, CB.clock.z); CITY.scene.add(m); TRAF.rings.push({ m, t: 0 }); },
+  power() { ['core0', 'core1', 'sram0', 'sram2', 'dma', 'pio0', 'usb', 'apb', 'timer', 'xip', 'rom'].forEach(id => { const w = wireBetween('vreg', id, '#ff8a66'); w.line.material.opacity = .8; TRAF.power.push(w.line); }); },
+  blink(gates, period, duty = .5, col) { TRAF.gateBlink = { gates, period, duty, col }; },
+};
+const TPROG = {
+  calm() { P.every(1.4, () => spawn(RT.rev(RT.bus('core0', 'xip')), { kind: 'instr', label: 'instr' })); P.every(2.1, () => spawn(RT.bus('core1', 'sram2'), { kind: 'data' }), .5); P.every(3.3, () => spawn(RT.bus('core0', 'sram1'), { kind: 'write' }), .3); },
+  boot() { P.every(1.5, () => spawn(RT.rev(RT.bus('core0', 'rom')), { kind: 'instr', label: 'boot ROM' })); },
+  fetch() { P.every(2.2, () => spawn(RT.flashToXip(), { kind: 'instr', label: 'QSPI', speed: 18, lane: 0 })); P.every(1.3, () => spawn(RT.rev(RT.bus('core0', 'xip')), { kind: 'instr', label: 'instr' }), .4); },
+  cache() { P.every(.7, () => spawn(RT.rev(RT.bus('core0', 'xip')), { kind: 'instr', label: 'hit', speed: 36 })); P.every(5, () => spawn(RT.flashToXip(), { kind: 'instr', label: 'miss', speed: 16, lane: 0 })); },
+  sram() { P.every(2, () => spawn(RT.bus('core0', 'sram0'), { kind: 'write', label: 'STR 21' })); P.every(2, () => spawn(RT.rev(RT.bus('core0', 'sram0')), { kind: 'data', label: 'LDR 42' }), .5); },
+  xbarFree() { P.every(2.4, () => { spawn(RT.bus('core0', 'sram0'), { kind: 'data', label: 'core 0' }); spawn(RT.bus('core1', 'sram1'), { kind: 'data', label: 'core 1' }); spawn(RT.bus('dmaR', 'sram2'), { kind: 'dma', label: 'DMA' }); }); },
+  xbarContend(prio) {
+    let turn = 0;
+    P.every(3.2, () => { const first = prio ? 0 : turn; turn ^= 1; const at = pathLenTo(RT.bus('core0', 'sram0'), 3) - 2;
+      ['core0', 'core1'].forEach((m, i) => spawn(RT.bus(m, 'sram0'), { kind: i ? 'write' : 'data', label: m === 'core0' ? 'core 0' : 'core 1', waits: i === first ? [] : [{ at: pathLenTo(RT.bus(m, 'sram0'), 3) - 2, sec: 1.3 }] }));
+      setLight(-57, false); setTimeout(() => setLight(-57, true), 1300); });
+  },
+  xbarPrio() { TPROG.xbarContend(true); },
+  stripe() { let k = 0; P.every(.9, () => { const b = ['sram0', 'sram1', 'sram2', 'sram3'][k % 4], B = CITY.B[b], row = Math.floor(k / 4) % 8; spawn(RT.bus('core0', b), { kind: 'write', label: `word ${k}`, onArrive: () => { const bx = B.boxes && B.boxes[row]; if (bx) { bx.material.opacity = 1; } } }); k++; if (k % 32 === 0) ['sram0', 'sram1', 'sram2', 'sram3'].forEach(s => CITY.B[s].boxes.forEach(x => x.material.opacity = 0)); }); },
+  apb() { P.every(3.2, () => { const p = RT.toShop('uart'); spawn(p, { kind: 'write', label: 'STR', waits: [{ at: pathLenTo(p, 5) + 6, sec: 1.4, onWait: () => { TRAF.barrierT = 0; }, onGo: () => { TRAF.barrierT = 1; setTimeout(() => TRAF.barrierT = 0, 900); } }] }); }); },
+  rmw() { let n = 0; P.every(2.6, () => { const p = RT.toShop('pwm'), step = ['LDR (read)', 'ORR (modify)', 'STR (write)'][n % 3]; if (n % 3 === 1) spawn(RT.coreToSio('core0'), { kind: 'pod', label: step, speed: 16 }); else spawn(n % 3 === 0 ? RT.rev(p) : p, { kind: n % 3 ? 'write' : 'data', label: step, speed: 30 }); n++; }); },
+  atomic() { P.every(2.4, () => spawn(RT.toShop('pwm'), { kind: 'write', label: 'SET +0x2000', speed: 30 })); },
+  sio() { let g = 0; P.every(.5, () => { spawn([...RT.coreToSio('core0'), ...RT.sioExpress(g % 8)], { kind: 'pod', label: 'GP' + (g % 8), speed: 70, lane: 0 }); setGate(g % 8, true); g++; if (g % 8 === 0) for (let i = 0; i < 8; i++) setTimeout(() => setGate(i, false), 400); }); },
+  cpuid() { P.every(2.6, () => { spawn(RT.coreToSio('core0'), { kind: 'pod', label: 'CPUID → 0', speed: 22 }); spawn(RT.coreToSio('core1'), { kind: 'pod', label: 'CPUID → 1', speed: 22 }); }); },
+  fifo() { let n = 1; P.every(1.6, () => { spawn([...RT.coreToSio('core0'), ...RT.rev(RT.coreToSio('core1'))], { kind: 'pod', label: 'msg ' + n++, speed: 24, lane: 0 }); }); },
+  spin() { P.every(3, () => { spawn(RT.coreToSio('core0'), { kind: 'pod', label: 'lock: got it', speed: 20 }); spawn(RT.coreToSio('core1'), { kind: 'pod', label: 'lock: wait…', speed: 20, waits: [{ at: 10, sec: 1.4 }] }); }); },
+  divider() { P.every(3.4, () => { const p = RT.coreToSio('core0'); spawn(p, { kind: 'pod', label: '123 ÷ 10', speed: 22, onArrive: () => setTimeout(() => spawn(RT.rev(p), { kind: 'pod', label: '12 r 3', speed: 22 }), 900) }); }); },
+  irq(src = 'timer') { const w = wireBetween(src, 'core0'); P.every(2.6, () => pulse(w, () => { CITY.bellOn = true; setTimeout(() => CITY.bellOn = false, 1200); })); P.every(1.4, () => spawn(RT.rev(RT.bus('core0', 'xip')), { kind: 'instr' }), .5); },
+  events() { const w = wireBetween('core0', 'core1', '#5fd0c3'); P.every(3, () => { TRAF.dimmed.add('core1'); setTimeout(() => pulse(w, () => TRAF.dimmed.delete('core1')), 1400); }); },
+  swd() { const g = new THREE.Vector3(113, 5, -60); const a = wireBetween(g, 'core0', '#b9a1ff'), b = wireBetween(g, 'core1', '#b9a1ff'); P.every(1.6, () => pulse(a)); P.every(2.2, () => pulse(b), .4); },
+  dma() { const w = wireBetween('uart', 'dma', '#7fb2ff'); P.every(4, () => { pulse(w); const p = [...RT.bus('dmaR', 'sram0')]; spawn(p, { kind: 'dma', label: 'load', speed: 24, onArrive: () => spawn(RT.slaveToShop('sram0', 'uart'), { kind: 'dma', label: 'deliver', speed: 24 }) }); }); P.every(2, () => spawn(RT.rev(RT.bus('core0', 'xip')), { kind: 'instr', label: 'CPU busy elsewhere' }), .3); },
+  dmaPing() { let k = 0; const w = wireBetween('adc', 'dma', '#7fb2ff'); P.every(2.4, () => { pulse(w); const s = k++ % 2 ? 'sram1' : 'sram0'; spawn(RT.shopToSlave('adc', s), { kind: 'dma', label: `→ buffer ${s === 'sram0' ? 'A' : 'B'}`, speed: 30 }); }); },
+  pio() { P.blink([0], .9, .5, '#a6d86e'); P.every(3, () => spawn(RT.bus('core0', 'pio0'), { kind: 'write', label: 'sm.put()' })); },
+  pio2() { P.blink([0, 1], 1.2, .5, '#a6d86e'); P.every(3, () => spawn(RT.bus('core0', 'pio0'), { kind: 'write', label: 'program' })); },
+  pinctrl() { [2, 3, 4].forEach(g => setGate(g, true, '#5fd0c3')); [0, 1].forEach(g => setGate(g, true, '#e2b457')); setGate(5, true, '#b9a1ff'); },
+  gpioMux() { let n = 0; P.every(1.4, () => { const k = n++ % 3; if (k === 0) spawn([...RT.coreToSio('core0'), ...RT.sioExpress(25)], { kind: 'pod', label: 'SIO', speed: 70, lane: 0 }); if (k === 1) spawn(RT.shopToGate('uart', 0), { kind: 'bit', label: 'UART0 TX', speed: 26 }); if (k === 2) spawn(RT.pioToGate('pio0', 2), { kind: 'bit', label: 'PIO0', speed: 26 }); }); setGate(0, true, '#ff8a66'); setGate(2, true, '#a6d86e'); setGate(25, true, '#5fd0c3'); },
+  usb() { P.every(2.2, () => spawn([[113, 38], [44, 38], [44, 31]], { kind: 'usb', label: 'USB packet', speed: 22, lane: 0, onArrive: () => spawn(RT.rev(RT.bus('core0', 'usb')), { kind: 'usb', label: 'to core', speed: 26 }) })); },
+  uart() { P.every(3.6, () => spawn(RT.toShop('uart'), { kind: 'write', label: "'H' 0x48" })); let b = 0; P.every(.45, () => { spawn(RT.shopToGate('uart', 0), { kind: 'bit', label: String((0x48 >> (b++ % 8)) & 1), speed: 30 }); }); setGate(0, true, '#ff8a66'); },
+  i2c() { P.every(3.6, () => spawn(RT.toShop('i2c'), { kind: 'write', label: 'addr 0x76' })); P.blink([16, 17], .4, .5, '#e2b457'); },
+  spi() { P.every(2.6, () => spawn(RT.toShop('spi'), { kind: 'write', label: 'pixels' })); P.blink([18, 19], .18, .5, '#e2b457'); },
+  pwm() { P.every(5, () => spawn(RT.toShop('pwm'), { kind: 'write', label: 'CC = 25%' })); P.blink([22], 1, .25, '#ff8a66'); },
+  adc() { P.every(3, () => { spawn([[gateX(26), 95], [gateX(26), 80], [CB.adc.x, 80], [CB.adc.x, 67]], { kind: 'bit', label: '1.65 V', speed: 22, lane: 0, onArrive: () => spawn(RT.rev(RT.toShop('adc')), { kind: 'data', label: 'RESULT 2048', speed: 28 }) }); }); setGate(26, true, '#5fd0c3'); },
+  timer() { TPROG.irq('timer'); P.every(4, () => spawn(RT.toShop('timer'), { kind: 'write', label: 'ALARM0' }), .2); },
+  wdog() { P.every(1.6, () => spawn(RT.toShop('wdog'), { kind: 'write', label: 'feed', speed: 34 })); },
+  rtc() { TPROG.irq('rtc'); },
+  clock() { P.every(.8, () => P.ring()); },
+  power() { P.power(); },
+  mpu() { P.every(3, () => { setLight(-21, false); spawn(RT.bus('core0', 'sram3'), { kind: 'write', label: 'STR → blocked', waits: [{ at: pathLenTo(RT.bus('core0', 'sram3'), 3) - 2, sec: 99 }] }); CITY.bellOn = true; setTimeout(() => CITY.bellOn = false, 1000); }); },
+  wall() { for (let g = 0; g < 30; g++) setGate(g, true, g >= 26 ? '#5fd0c3' : '#e2b457'); },
+  leds8() { for (let g = 0; g < 8; g++) setGate(g, true, '#ff5a3a'); },
+  gp7in() { setGate(7, true, '#5fd0c3'); P.every(1.2, () => spawn([[gateX(7), 95, 3], [gateX(7), 86, 7.4], [-106, 86, 7.4], [-106, -107, 7.4], [-35, -107, 7.4], [-35, -104, 7.4]], { kind: 'pod', label: 'GPIO_IN bit 7', speed: 80, lane: 0 })); },
+};
+function trafficTick(dt, t) {
+  TRAF.jobs.forEach(j => { j.acc += dt; if (j.acc >= j.sec) { j.acc -= j.sec; j.fn(); } });
+  const cs = clamp(camera.position.distanceTo(controls.target) / 165, 1, 2);
+  TRAF.cars.forEach(c => c.mesh.scale.setScalar(cs));
+  for (let i = TRAF.cars.length - 1; i >= 0; i--) {
+    const c = TRAF.cars[i];
+    if (c.wait) { c.wait.left -= dt; if (c.wait.left <= 0) { c.wait.onGo && c.wait.onGo(); c.wait = null; } }
+    else { const nx = c.s + c.speed * dt; const w = c.waits[0]; if (w && nx >= w.at) { c.s = w.at; c.wait = { left: w.sec, onGo: w.onGo }; w.onWait && w.onWait(); c.waits.shift(); } else c.s = nx; }
+    if (c.s >= c.total) { c.onArrive && c.onArrive(); CITY.scene.remove(c.mesh); TRAF.cars.splice(i, 1); continue; }
+    placeCar(c);
+  }
+  for (let i = TRAF.pulses.length - 1; i >= 0; i--) { const p = TRAF.pulses[i]; p.t += dt / p.dur; if (p.t >= 1) { CITY.scene.remove(p.sp); TRAF.pulses.splice(i, 1); p.onArrive && p.onArrive(); continue; } p.w.curve.getPoint(p.t, p.sp.position); }
+  for (let i = TRAF.rings.length - 1; i >= 0; i--) { const r = TRAF.rings[i]; r.t += dt * .45; r.m.scale.setScalar(1 + r.t * 90); r.m.material.opacity = .7 * (1 - r.t); if (r.t >= 1) { CITY.scene.remove(r.m); TRAF.rings.splice(i, 1); } }
+  TRAF.power.forEach((l, i) => l.material.opacity = .45 + .4 * Math.sin(t * 4 + i));
+  TRAF.barrier += (TRAF.barrierT - TRAF.barrier) * Math.min(1, dt * 6); if (CITY.B.apb && CITY.B.apb.arm) CITY.B.apb.arm.rotation.z = TRAF.barrier * 1.35;
+  if (TRAF.gateBlink) { const B = TRAF.gateBlink, on = (t % B.period) / B.period < B.duty; B.gates.forEach(g => setGate(g, on, B.col)); }
+  for (const k in CITY.B) if (TRAF.dimmed.has(k)) CITY.B[k].mats.forEach(m => { m.opacity *= .35; });
+}
+
+/* ================= STORY MODE: ENGINE ================= */
+const STORY = {};
+const SY = { on: false, id: null, i: 0, playing: false, t: 0, view: 'bench', calls: [], drawer: null, simCtx: null };
+let VIEW = 'bench';
+const CITY_DIR = new THREE.Vector3(0.16, 0.8, 0.58).normalize();
+const benchPose = { pos: null, tgt: null };
+function syTopic() { return findTopic(SY.id); }
+function syStory(id) {
+  if (STORY[id]) return STORY[id];
+  const t = findTopic(id); return { steps: [{ t: t.t, view: 'city', cam: 'city', say: t.lead, traffic: ['calm'] }] };
+}
+function cityPoint(ref) {
+  if (Array.isArray(ref)) return new THREE.Vector3(ref[0], ref[1], ref[2]);
+  if (ref === 'city') return new THREE.Vector3(0, 0, -12);
+  if (ref === 'plaza') return new THREE.Vector3(0, 2, -28);
+  if (ref === 'wall') return new THREE.Vector3(0, 3, 84);
+  if (ref === 'street') return new THREE.Vector3(36, 3, 58);
+  if (ref === 'ship') return new THREE.Vector3(-118, 3, 28);
+  const b = CB[ref]; return b ? new THREE.Vector3(b.x, b.h * 0.5, b.z) : new THREE.Vector3();
+}
+function camFor(st) {
+  const c = st.cam || (st.open ? [].concat(st.open)[0] : (st.focus && st.focus[0]) || 'city');
+  const ref = typeof c === 'object' && !Array.isArray(c) ? c.at : c;
+  const P = cityPoint(ref), b = CB[ref];
+  let dist = typeof c === 'object' && c.dist ? c.dist : ref === 'city' ? 270 : ref === 'plaza' ? 190 : ref === 'wall' ? 135 : ref === 'street' ? 120 : ref === 'ship' ? 120 : b ? Math.max(b.w, b.d, b.h) * 2.6 + (st.open ? 22 : 40) : 120;
+  const dir = st.open ? new THREE.Vector3(0.1, 0.92, 0.38).normalize() : CITY_DIR.clone();
+  if (st.open && b) P.y = 1;
+  return { P, dist: dist * syK(), dir };
+}
+// distance factor from the part of the canvas the story panel leaves visible
+function syK() {
+  const W = innerWidth, H = innerHeight, sh = $('#story').offsetHeight || 0;
+  const fw = W < 760 ? 1 : Math.max(.4, (W - 430) / W), fh = W < 760 ? clamp(1 - (sh + 84) / H, .35, 1) : 1;
+  return clamp(Math.max(1.6 / (camera.aspect * fw), 1 / fh), 1, 2.6);
+}
+function switchView(v, then) {
+  if (v === VIEW) { then && then(); return; }
+  const f = $('#fade'); f.classList.add('on');
+  setTimeout(() => {
+    if (v === 'city') { if (!CITY.built) buildCity(); benchPose.pos = camera.position.clone(); benchPose.tgt = controls.target.clone(); controls.maxDistance = 900; }
+    else { controls.maxDistance = 230; }
+    VIEW = v; SY.view = v; document.body.classList.toggle('city-on', v === 'city'); then && then(true);
+    setTimeout(() => f.classList.remove('on'), 60);
+  }, REDUCE ? 0 : 280);
+}
+function setCalls(list) {
+  SY.calls.forEach(c => c.el.remove()); SY.calls = [];
+  (list || []).forEach(([ref, title, sub, hot]) => { const el = document.createElement('div'); el.className = 'cc' + (hot ? ' hot' : ''); el.innerHTML = `${title}${sub ? `<small>${sub}</small>` : ''}`; $('#labels').appendChild(el); const p = cityPoint(ref); const b = typeof ref === 'string' && CB[ref]; if (b) p.y = b.h + (b.ty === 'clocktower' ? 12 : 9); SY.calls.push({ el, p }); });
+}
+function syApply(jump) {
+  const st = syStory(SY.id).steps[SY.i];
+  setCalls([]);
+  if ((st.view || 'city') === 'city') {
+    switchView('city', (instant) => {
+      cityOpen(st.open ? [].concat(st.open) : []); cityFocus(st.focus); clearTraffic(); [].concat(st.traffic || []).forEach(n => { const [name, arg] = n.split(':'); TPROG[name] && TPROG[name](arg); });
+      const c = camFor(st);
+      if (instant || jump) { for (let k = tweens.length - 1; k >= 0; k--) if (tweens[k].tag === 'cam') tweens.splice(k, 1); camera.position.copy(c.P.clone().add(c.dir.clone().multiplyScalar(c.dist))); controls.target.copy(c.P); } else flyTo(c.P, c.dist, c.dir, 1300);
+      setTimeout(() => setCalls(st.call), instant ? 300 : 900);
+    });
+  } else {
+    switchView('bench', () => {
+      if (LAB.on) labExit();
+      if (st.xray != null) setXray(!!st.xray); else if (S.xray) setXray(false);
+      if (st.part) { S.sel = null; select(st.part, st.pin ? { pin: st.pin } : {}); if (st.inside) { S.insideSel = true; applyTargets(); } }
+      else { deselect(false); flyHome(900); }
+    });
+  }
+  renderSyStep();
+}
+function syCount() { const t = syTopic(), idx = t.U.topics.findIndex(x => x.id === SY.id); return [idx, t.U.topics.length]; }
+function renderSyPanel() {
+  const t = syTopic(), [idx, n] = syCount();
+  $('#syUnit').textContent = `Unit ${t.U.u} · ${t.U.co}`;
+  $('#syUnits').innerHTML = COURSE.map(U => `<button data-u="${U.u}" aria-current="${U.u === t.U.u}" title="Unit ${U.u}: ${U.title}">${U.u}</button>`).join('');
+  $('#syCount').textContent = `Topic ${idx + 1} of ${n} · ${t.U.short}`;
+  $('#syName').textContent = t.t;
+  $('#syList').innerHTML = t.U.topics.map((x, i) => `<button data-id="${x.id}" aria-current="${x.id === SY.id}"><span>${t.U.u}.${i + 1}</span>${x.t}</button>`).join('');
+  const nx = syNextId(); $('#syNextTopic').textContent = nx ? 'Next topic →' : 'Done';
+  closeDrawer();
+}
+function renderSyStep() {
+  const S2 = syStory(SY.id), st = S2.steps[SY.i], n = S2.steps.length;
+  $('#syStep').innerHTML = `<div class="n">Step ${SY.i + 1} of ${n}</div><h3>${st.t}</h3><p>${st.say}</p>${st.look ? `<div class="look">${st.look}</div>` : ''}${st.sim ? `<div><button class="act" data-opensim style="margin-top:14px">${st.sim === true ? 'Try it in the simulator' : st.sim} →</button></div>` : ''}`;
+  $('#syDots').innerHTML = S2.steps.map((_, k) => `<button class="${k < SY.i ? 'done' : k === SY.i ? 'cur' : ''}" data-i="${k}" aria-label="Step ${k + 1}"></button>`).join('');
+  const b = $('#syStep [data-opensim]'); if (b) b.onclick = openSim;
+  CS.seen[SY.id] = 1; try { localStorage.setItem('pico-course-seen', JSON.stringify(CS.seen)); } catch (e) {}
+}
+function syGo(i, jump) { const n = syStory(SY.id).steps.length; SY.i = clamp(i, 0, n - 1); SY.t = 0; syApply(jump); }
+function syNextId() { const all = allTopics(), k = all.findIndex(x => x.id === SY.id); return all[k + 1] ? all[k + 1].id : null; }
+function syLoad(id, jump) { SY.id = id; SY.i = 0; SY.t = 0; renderSyPanel(); syApply(jump); try { history.replaceState(null, '', '#' + id); } catch (e) {} }
+function storyOpen(id) {
+  if (CS.open) courseClose(); if (LAB.on) labExit(); if (S.dieOpen) closeDie(true); stopTour(); setExplode(false); if (S.flipped) setFlip(false);
+  SY.on = true; document.body.classList.add('story-on'); $('#bCourse').setAttribute('aria-pressed', 'true'); setToolDisabled(true); $('#bLab').setAttribute('aria-disabled', 'true');
+  syLoad(id || SY.id || 'mcu');
+}
+function storyClose() {
+  if (!SY.on) return;
+  SY.on = false; SY.playing = false; document.body.classList.remove('story-on'); $('#bCourse').setAttribute('aria-pressed', 'false'); setToolDisabled(false); $('#bLab').removeAttribute('aria-disabled');
+  setCalls([]); closeDrawer(); closeSim(); if (S.xray) setXray(false);
+  switchView('bench', () => { clearTraffic(); deselect(false); flyHome(1000); });
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+}
+function closeDrawer() { SY.drawer = null; $('#syDrawer').classList.remove('open'); document.querySelectorAll('#syMore [data-d]').forEach(b => b.setAttribute('aria-pressed', 'false')); }
+function openDrawer(kind) {
+  if (SY.drawer === kind) { closeDrawer(); return; }
+  const t = syTopic(), d = $('#syDrawer'); SY.drawer = kind;
+  document.querySelectorAll('#syMore [data-d]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.d === kind)));
+  if (kind === 'pts') d.innerHTML = `<h4>Key points <button class="x" data-cl aria-label="Close">×</button></h4><ul>${t.pts.map(p => `<li>${p}</li>`).join('')}</ul>${t.check ? `<div class="c-err">${t.check}</div>` : ''}`;
+  if (kind === 'regs') { const regs = t.regs || []; d.innerHTML = `<h4>Registers <button class="x" data-cl aria-label="Close">×</button></h4>${regs.length ? `<div class="c-regs">${regs.map(k => `<button data-reg="${k}">${k}</button>`).join('')}</div><div id="syRegHost" style="margin-top:10px"></div>` : '<p class="note">This topic has no registers of its own.</p>'}<button class="btn" data-finder style="margin-top:10px">Open the full register finder</button>`; d.querySelectorAll('[data-reg]').forEach(b => b.onclick = () => { const h = $('#syRegHost'); h.innerHTML = ''; regEditor(h, getReg(b.dataset.reg)); }); d.querySelector('[data-finder]').onclick = () => { closeDrawer(); courseOpen('mcu'); renderCourseTopic('regs'); }; }
+  if (kind === 'ex') { const ex = t.ex || []; d.innerHTML = `<h4>Try it <button class="x" data-cl aria-label="Close">×</button></h4>${ex.length ? ex.map((e, i) => exHTML(e, i)).join('') : '<p class="note">No questions for this topic.</p>'}`; d.querySelectorAll('.ex').forEach((box, i) => wireEx(box, ex[i])); }
+  d.querySelector('[data-cl]').onclick = closeDrawer;
+  d.classList.add('open');
+}
+function openSim() {
+  const t = syTopic(); closeSim(); closeDrawer(); SY.playing = false; $('#syPlay').textContent = 'Play';
+  $('#smTitle').textContent = t.t; const body = $('#smBody');
+  body.innerHTML = `<p class="c-lead" style="margin-top:0">${t.lead}</p><div class="st" id="smHost"></div><div id="smRegs" style="margin-top:14px"></div>`;
+  SY.simCtx = stCtx();
+  try { (STATIONS[t.st] || stationMissing)($('#smHost'), SY.simCtx, t); } catch (e) { $('#smHost').innerHTML = `<div class="st-card note">This station hit an error: ${escH(String(e.message || e))}</div>`; }
+  if (t.regs && t.regs[0] && getReg(t.regs[0])) regEditor($('#smRegs'), getReg(t.regs[0]));
+  $('#syModal').classList.add('open');
+}
+function closeSim() { if (SY.simCtx) { SY.simCtx.stops.forEach(f => f()); SY.simCtx = null; } $('#syModal').classList.remove('open'); $('#smBody').innerHTML = ''; }
+function syFrame(dt, time) {
+  if (!SY.on) return;
+  if (VIEW === 'city') { cityTick(dt, time); trafficTick(dt, time); const d = camera.position.distanceTo(controls.target); CITY.scene.fog.near = d * .85; CITY.scene.fog.far = d * 1.9 + 120; }
+  const W = innerWidth, H = innerHeight;
+  SY.calls.forEach(c => { tmpV.copy(c.p).project(camera); const vis = tmpV.z < 1 && VIEW === 'city'; c.el.style.opacity = vis ? 1 : 0; c.el.style.transform = `translate3d(${((tmpV.x * .5 + .5) * W).toFixed(1)}px,${((-tmpV.y * .5 + .5) * H).toFixed(1)}px,0) translate(-50%,calc(-100% - 8px))`; });
+  if (SY.playing) { const st = syStory(SY.id).steps[SY.i], words = (st.say.replace(/<[^>]+>/g, '').split(/\s+/).length); SY.t += dt; if (SY.t > clamp(2.5 + words * 0.28, 6, 13)) { const n = syStory(SY.id).steps.length; if (SY.i < n - 1) syGo(SY.i + 1); else { SY.playing = false; $('#syPlay').textContent = 'Play'; } } }
+}
+$('#syUnits').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (b) syLoad(COURSE.find(U => U.u === +b.dataset.u).topics[0].id); });
+$('#syTitle').onclick = () => { const L = $('#syList'), open = L.hidden; L.hidden = !open; $('#syTitle').setAttribute('aria-expanded', String(open)); };
+$('#syList').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) { $('#syList').hidden = true; syLoad(b.dataset.id); } });
+$('#syDots').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) syGo(+b.dataset.i); });
+$('#syPrev').onclick = () => syGo(SY.i - 1);
+$('#syNext').onclick = () => syGo(SY.i + 1);
+$('#syPlay').onclick = () => { SY.playing = !SY.playing; SY.t = 0; $('#syPlay').textContent = SY.playing ? 'Pause' : 'Play'; };
+$('#syNextTopic').onclick = () => { const n = syNextId(); if (n) syLoad(n); else storyClose(); };
+$('#syClose').onclick = storyClose;
+$('#syMore').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; if (b.dataset.d === 'sim') openSim(); else openDrawer(b.dataset.d); });
+$('#smClose').onclick = closeSim;
+$('#syModal').addEventListener('click', e => { if (e.target.id === 'syModal') closeSim(); });
+
+/* ================= STORY CONTENT · UNITS 1–2 ================= */
+Object.assign(STORY, {
+  mcu: { steps: [
+    { t: 'A computer on one chip', view: 'board', part: 'rp2040', say: 'This little board is a complete computer. The black square in the middle, the RP2040, is the microcontroller: processor, memory and input/output all live inside that one chip.' },
+    { t: 'Inside: a city', cam: 'city', traffic: ['calm'], say: 'Zoom inside the chip and think of it as a city. Processor towers do the thinking, warehouses hold memory, shops handle input and output, and roads, the bus, connect them all.', call: [['core0', 'Processor', 'thinks'], ['sram2', 'Memory', 'stores'], ['uart', 'Input / output', 'talks to the world'], ['plaza', 'The bus', 'connects everything']], look: 'Gold cars carry instructions, teal cars carry data' },
+    { t: 'Only the program lives outside', cam: 'ship', focus: ['flash', 'xip'], traffic: ['fetch'], say: 'A microprocessor needs separate chips for memory and I/O. The RP2040 keeps almost everything inside its walls. Only the program flash sits outside, like a ship that delivers code to the harbour.' },
+  ] },
+  gates: { steps: [
+    { t: 'Built from switches', open: 'core0', traffic: ['calm'], say: 'Every building in Chip City is made of tiny switches called transistors, millions of them. A transistor lets current through only while its control input is switched on.' },
+    { t: 'Switches make logic', open: 'core0', say: 'Wire two switches in a row and current only gets through when both are on: that is an AND gate. Put them side by side and either one is enough: OR. The slide\'s circuit is the AND version.', sim: 'Wire the gates yourself' },
+    { t: 'Logic families', cam: 'city', traffic: ['calm'], say: 'Older chips built gates from resistors (RTL), diodes (DTL) or only transistors (TTL, the fastest of the three). RP2040 uses CMOS, which uses almost no power while it is not switching.' },
+  ] },
+  glance: { steps: [
+    { t: 'The name is a spec sheet', view: 'board', part: 'rp2040', say: 'RP = Raspberry Pi, 2 = two cores, 0 = Cortex-M0+, 4 = at least 256 KB of RAM (it has 264 KB), 0 = no flash inside the chip.' },
+    { t: 'The key numbers', cam: 'city', traffic: ['calm'], say: 'Here is where each headline feature lives in the city.', call: [['core0', '2 × Cortex-M0+', 'up to 133 MHz'], ['sram1', '264 KB SRAM', '6 banks'], ['rom', '16 KB boot ROM'], ['pio0', 'PIO', '8 state machines'], ['dma', 'DMA', '12 channels'], ['adc', 'ADC', '12-bit · 500 kS/s'], ['usb', 'USB 1.1', 'host / device'], ['wall', '30 GPIO', 'multifunction pins']] },
+  ] },
+  blocks: { steps: [
+    { t: 'The block diagram as a city', cam: 'city', traffic: ['calm'], say: 'The slide\'s block diagram has eight areas. Every one of them is a district here.', call: [['core0', 'Processor'], ['sram2', 'Memory'], ['plaza', 'Bus fabric'], ['dma', 'DMA'], ['pio0', 'PIO'], ['street', 'Peripherals'], ['wall', 'IO'], ['clock', 'Clocks'], ['vreg', 'System control', 'power, reset']] },
+    { t: 'Everything meets at the bus', cam: 'plaza', focus: ['core0', 'core1', 'dma', 'sram0', 'sram1', 'apb'], traffic: ['xbarFree'], say: 'The bus fabric is the centre of the city. Both cores and the DMA drive through it to reach memory and the peripherals.' },
+    { t: 'Rhythm and power', cam: 'city', focus: ['clock', 'vreg'], traffic: ['clock', 'power'], say: 'The clock tower sets the rhythm for every building. The voltage regulator supplies the 1.1 V that powers the core logic.', look: 'Teal rings = clock ticks · coral lines = power' },
+  ] },
+  pinout: { steps: [
+    { t: '56 pins and a ground pad', view: 'board', part: 'rp2040', xray: true, say: 'The RP2040 is a 7 × 7 mm package with 56 pins around its edge and a ground pad underneath. Bond wires connect each pin to the silicon inside.' },
+    { t: 'Pins are gates in the wall', cam: 'wall', traffic: ['wall'], say: 'In the city the pins are gates in the wall: 30 GPIO gates line the south wall (GP26–29 can also measure voltages). QSPI, USB and debug have their own gates.', call: [['wall', '30 GPIO gates', 'GP0 … GP29']] },
+    { t: 'Power pins', cam: 'city', focus: ['vreg'], traffic: ['power'], say: 'Power comes in on separate pins. IOVDD feeds the pin gates; VREG_VIN feeds the regulator, which makes 1.1 V for DVDD, the core supply. USB and the ADC have their own 3.3 V pins.' },
+  ] },
+  gpiofn: { steps: [
+    { t: 'One pin, many jobs', view: 'board', part: 'header', say: 'Each pin on the Pico can do several jobs: UART, SPI, I2C, PWM, plain software I/O (SIO) or PIO. The colours show what each pin is.' },
+    { t: 'The IO bank picks the road', cam: 'wall', focus: ['iob', 'uart', 'pio0', 'sio'], traffic: ['gpioMux'], say: 'Inside the chip, the IO bank decides which road reaches each gate. Its FUNCSEL field is the switch: 2 lets UART traffic out, 5 lets SIO out, 6 lets PIO0 out.', call: [['iob', 'IO BANK', 'FUNCSEL per pin']] },
+    { t: 'Try it', cam: 'wall', traffic: ['gpioMux'], say: 'Every pin has its own control register at 0x40014004 + 8 × pin. Open the table and pick a function for any pin.', sim: 'Open the function table' },
+  ] },
+  sioleds: { steps: [
+    { t: 'One write, eight LEDs', cam: 'sio', focus: ['core0', 'sio'], traffic: ['sio'], say: 'The slide\'s code writes 0xFF to address 0xd0000010, GPIO_OUT. That value leaves core 0 on the SIO express track: one clock cycle, no traffic lights.', look: 'Cyan pods = SIO, the private express track' },
+    { t: 'Each bit is one gate', cam: 'wall', traffic: ['leds8'], say: 'Bit 0 lights gate GP0, bit 1 GP1 … bit 7 GP7. GPIO_OE has to be set first; otherwise the gates stay inputs and nothing lights.' },
+    { t: 'Run the slide\'s program', cam: 'wall', traffic: ['leds8'], say: 'pinMode() sets the GPIO_OE bits, then the loop writes 0xFF and 0 with a delay in between.', sim: 'Run the Wokwi program' },
+  ] },
+  xbar: { steps: [
+    { t: 'Four drivers, ten destinations', cam: 'plaza', focus: ['core0', 'core1', 'dma', 'sram0', 'sram1', 'sram2'], traffic: ['xbarFree'], say: 'Four drivers can enter the bus fabric: core 0, core 1, and the DMA\'s read and write trucks. Heading for different buildings, they all go through in the same cycle.', look: 'Every light green: no waiting' },
+    { t: 'Two cars, one door', cam: 'plaza', focus: ['core0', 'core1', 'sram0'], traffic: ['xbarContend'], say: 'Now both cores want SRAM0 at the same moment. The arbiter at that exit lets one through and holds the other for a cycle. Next time they swap: round-robin.', call: [[[-54, 6, -11], 'Arbiter', 'the traffic light', true]] },
+    { t: 'Priority', cam: 'plaza', focus: ['core0', 'core1', 'sram0'], traffic: ['xbarPrio'], say: 'Set core 0\'s bit in BUS_PRIORITY and it always goes first. SRAM answers in one cycle, so the high-priority driver never slows down; only the other one waits.', sim: 'Run the crossbar simulator' },
+  ] },
+  atomic: { steps: [
+    { t: 'The slow way: three trips', cam: 'street', focus: ['core0', 'pwm', 'apb'], traffic: ['rmw'], say: 'Changing one bit the usual way takes three steps: read the register, change the bit inside the core, write it back. If the other core changes the register in between, its change is lost.' },
+    { t: 'The atomic way: one trip', cam: 'street', focus: ['pwm', 'apb'], traffic: ['atomic'], say: 'Instead, drive to the same register at address + 0x2000 with a SET ticket. One trip, nothing can sneak in. + 0x1000 toggles bits (XOR), + 0x3000 clears them.', sim: 'Compare the race' },
+  ] },
+  apb: { steps: [
+    { t: 'The toll plaza', cam: 'apb', focus: ['apb', 'uart', 'core0'], traffic: ['apb'], say: 'Slow peripherals sit behind the APB bridge. Every car stops at the toll: a read takes 3 cycles and a write 4, while SRAM answers in 1.', look: 'Watch the barrier lift after the wait' },
+    { t: 'Full tickets only', cam: 'apb', focus: ['apb'], traffic: ['apb'], say: 'IO registers only take full 32-bit writes. Write a single byte and it gets copied into all four byte lanes. To change part of a register, use the SET / CLR / XOR addresses instead.', sim: 'See the timing and narrow writes' },
+  ] },
+  procsub: { steps: [
+    { t: 'Two roads per core', cam: 'city', focus: ['core0', 'core1', 'sio'], traffic: ['calm', 'sio'], say: 'Each core has its own lane into the bus fabric for memory, plus a private express track to the SIO for fast pin control.' },
+    { t: 'Wires reach both towers', cam: 'city', focus: ['core0', 'core1', 'timer'], traffic: ['irq', 'swd'], say: 'Interrupt wires from 26 peripherals reach both cores, and the debug cable (SWD) reaches into both towers.', look: 'Red = interrupt · lilac = debug' },
+  ] },
+  siogpio: { steps: [
+    { t: '"Who am I?"', open: 'sio', focus: ['sio', 'core0', 'core1'], traffic: ['cpuid'], say: 'Both cores ask the SIO the same question at the same address. CPUID answers 0 to core 0 and 1 to core 1, so shared code knows where it is running.' },
+    { t: 'The GPIO desk', open: 'sio', focus: ['sio'], traffic: ['sio'], say: 'The GPIO desk drives pins in a single cycle. GPIO_OUT_SET, _CLR and _XOR change chosen bits without touching the rest.', sim: 'Write to the SIO GPIO registers' },
+  ] },
+  siosync: { steps: [
+    { t: 'One key: spinlocks', open: 'sio', focus: ['sio', 'core0', 'core1'], traffic: ['spin'], say: 'A spinlock is like a single key. The first core to read SPINLOCK0 gets it; the other has to wait until the key is handed back by a write.' },
+    { t: 'Mailboxes', open: 'sio', focus: ['sio', 'core0', 'core1'], traffic: ['fifo'], say: 'Mailbox FIFOs carry notes between the cores: 8 notes of 32 bits each way, and an interrupt tells the other core that mail has arrived.', sim: 'Race the cores and send mail' },
+  ] },
+  div: { steps: [
+    { t: 'The divider desk', open: 'sio', focus: ['sio', 'core0'], traffic: ['divider'], say: 'Cortex-M0+ cannot divide on its own. Hand 123 and 10 to the divider desk; 8 cycles later the answer comes back: 12 remainder 3.', sim: 'Try your own numbers' },
+  ] },
+  interp: { steps: [
+    { t: 'The interpolator desk', open: 'sio', focus: ['sio'], traffic: ['calm'], say: 'The interpolator does a shift, a mask and a sign-extension in one cycle. It also blends between two values or clamps a number into a range: handy for graphics, audio and table look-ups.', sim: 'Shift and mask 0xdeadbeef' },
+  ] },
+  nvic: { steps: [
+    { t: 'Ring the bell', open: 'core0', focus: ['core0', 'timer'], traffic: ['irq'], say: 'When the timer needs attention, a pulse runs along its interrupt wire to core 0\'s NVIC desk and the bell rings.', look: 'Red pulses = interrupt requests' },
+    { t: 'Drop everything (briefly)', open: 'core0', focus: ['core0'], traffic: ['irq'], say: 'The core finishes its current instruction, saves its place and runs the handler. A higher-priority interrupt can interrupt a running handler; priority 0 is the highest.', sim: 'Fire interrupts on the timeline' },
+  ] },
+  events: { steps: [
+    { t: 'Sleep and wake', cam: 'core1', focus: ['core0', 'core1'], traffic: ['events'], say: 'A core with nothing to do runs WFE and its tower goes dark to save power. Core 0\'s SEV sends a pulse along the event wire that wakes core 1.', sim: 'Try WFE and SEV' },
+  ] },
+  swd: { steps: [
+    { t: 'The debug cable', cam: 'city', focus: ['core0', 'core1'], traffic: ['swd'], say: 'A debugger plugs in at the SWD gate. TARGETSEL picks which tower answers: core 0, core 1, or the Rescue port that can revive a stuck chip.', sim: 'Send a TARGETSEL' },
+    { t: 'On the board', view: 'board', part: 'debug', say: 'On the Pico W those two wires are the three DEBUG pads: SWCLK, GND and SWDIO.' },
+  ] },
+});
+
+/* ================= STORY CONTENT · UNITS 3–5 ================= */
+Object.assign(STORY, {
+  m0core: { steps: [
+    { t: 'Inside a core', open: 'core0', focus: ['core0', 'xip'], traffic: ['fetch'], say: 'Instructions arrive from the harbour and pass three stations inside the tower: fetch, decode, execute, one after another.', look: 'The gold block is an instruction moving through the stations' },
+    { t: 'Lockers and calculators', open: 'core0', focus: ['core0'], traffic: ['fetch'], say: 'Working values live in 16 register lockers: r0–r12, the stack pointer, link register and program counter. The ALU and a single-cycle multiplier do the maths.', sim: 'See instructions and cycle counts' },
+  ] },
+  m0config: { steps: [
+    { t: 'Options chosen at build time', open: 'core0', focus: ['core0'], traffic: ['calm'], say: 'Arm lets chip makers choose options. RP2040 picked 26 interrupts, 8 MPU regions, a SysTick timer, a movable vector table and little-endian memory: the lowest byte sits at the lowest address.', sim: 'See little-endian bytes' },
+  ] },
+  systick: { steps: [
+    { t: 'A heartbeat', open: 'core0', focus: ['core0', 'clock'], traffic: ['clock'], say: 'SysTick counts down from RELOAD at the core clock. At zero it reloads and taps the core on the shoulder, like the steady heartbeat an operating system needs.', sim: 'Set RELOAD and watch it count' },
+    { t: 'Sleeping cores', cam: 'core1', focus: ['core0', 'core1'], traffic: ['events'], say: 'WFI and WFE put a core to sleep until an interrupt or event arrives. With SLEEPONEXIT, it goes straight back to sleep after each handler.' },
+  ] },
+  memmap: { steps: [
+    { t: 'Every building has an address', cam: 'city', traffic: ['calm'], say: 'The whole chip shares one 4 GB address map. Each district starts at its own address.', call: [['rom', '0x0000 0000', 'ROM'], ['xip', '0x1000 0000', 'XIP flash'], ['sram1', '0x2000 0000', 'SRAM'], ['apb', '0x4000 0000', 'APB peripherals'], ['pio0', '0x5000 0000', 'AHB peripherals'], ['sio', '0xD000 0000', 'SIO'], ['core1', '0xE000 0000', 'core registers']] },
+    { t: 'Striped warehouses', open: ['sram0', 'sram1', 'sram2', 'sram3'], cam: { at: [-39, 3, 22], dist: 80 }, traffic: ['stripe'], say: 'SRAM0–3 share the work. Word 0 goes to SRAM0, word 1 to SRAM1, word 2 to SRAM2… so cars walking through an array rarely queue at the same door.', look: 'Boxes fill the four warehouses in turn', sim: 'Decode any address' },
+  ] },
+  mpu: { steps: [
+    { t: 'The security guard', cam: 'plaza', focus: ['core0', 'sram3'], traffic: ['mpu'], say: 'The MPU is a guard at the doors. Mark SRAM3 read-only and a car trying to write there is stopped at a red light, and the core gets a HardFault.', sim: 'Configure regions and test access' },
+  ] },
+  sioex: { steps: [
+    { t: 'IR sensor on GPIO7', cam: 'wall', traffic: ['gp7in'], say: 'Write 0x80 to GPIO_OE_CLR (0xd0000028): bit 7 is cleared, gate 7 becomes an input, and its level travels back up the express track to GPIO_IN.' },
+    { t: '30 LEDs, all on', cam: 'wall', traffic: ['wall'], say: 'Write 0x3FFFFFFF to GPIO_OE and then to GPIO_OUT (0xd0000010): bits 0–29 are all 1, so every gate lights.', sim: 'Build both answers' },
+  ] },
+  dma: { steps: [
+    { t: 'Delivery trucks', cam: 'plaza', focus: ['dma', 'sram0', 'uart', 'apb'], traffic: ['dma'], say: 'DMA trucks move data so the cores don\'t have to. A truck loads from SRAM and delivers to the UART, while core 0 carries on with its own work.', look: 'Blue trucks = DMA · blue pulse = DREQ request' },
+    { t: 'Paced and chained', cam: 'plaza', focus: ['dma', 'adc', 'sram0', 'sram1'], traffic: ['dmaPing'], say: 'The peripheral asks for each delivery with a DREQ pulse. Two chained channels fill buffer A, then buffer B, then A again: ping-pong, with no CPU involved.', sim: 'Run the DMA simulator' },
+  ] },
+  dmactrl: { steps: [
+    { t: '12 truck bays', open: 'dma', focus: ['dma'], traffic: ['dma'], say: 'Each bay is a channel with its own CHx_CTRL_TRIG register: which DREQ to wait for, the parcel size, whether addresses move on, and which channel to chain to.', sim: 'Build the slide\'s CTRL value' },
+  ] },
+  piointro: { steps: [
+    { t: 'Robot workshops', open: 'pio0', focus: ['pio0'], traffic: ['pio'], say: 'Each PIO workshop has four robots. A robot follows its own tiny program and flips pins with exact timing, without disturbing the cores.', look: 'Gate GP0 in the wall blinks under robot control' },
+    { t: '8 state machines', open: ['pio0', 'pio1'], cam: { at: [24, 3, 24], dist: 70 }, traffic: ['pio'], say: 'Two workshops × four robots = 8 state machines. Like the slide\'s light bulb, each one\'s output depends only on which state it is in.' },
+  ] },
+  pioanat: { steps: [
+    { t: 'A robot\'s toolkit', open: 'pio0', focus: ['pio0', 'core0'], traffic: ['pio'], say: 'Each robot has an OSR (data going out), an ISR (data coming in), two scratch registers X and Y, and conveyor belts (TX and RX FIFOs) to the cores.', sim: 'Push data through OSR and ISR' },
+  ] },
+  piosim: { steps: [
+    { t: 'The squarewave program', open: 'pio0', focus: ['pio0'], traffic: ['pio'], say: 'The slide\'s program: set the pin high, wait one cycle, set it low, jump back. Each instruction takes exactly one cycle, so the period is exactly 4.', look: 'Watch gate GP0 in the wall' },
+    { t: 'Step it yourself', cam: 'wall', traffic: ['pio'], say: 'Open the simulator to step the program cycle by cycle, watch the registers, and see what makes a robot stall.', sim: 'Open the PIO simulator' },
+  ] },
+  pinctrl: { steps: [
+    { t: 'Which gates?', cam: 'wall', traffic: ['pinctrl'], say: 'PINCTRL tells each robot which gates it may use: OUT pins, SET pins, side-set pins and IN pins, each given as a first gate plus a count.', look: 'Gold = OUT · teal = SET · lilac = side-set', sim: 'Map pins with PINCTRL' },
+  ] },
+  pioirq: { steps: [
+    { t: 'Robots signalling', open: 'pio0', focus: ['pio0'], traffic: ['pio2'], say: 'Robots can signal each other with IRQ flags. SM0 raises flag 4; SM1 waits for it, then fires, so the two pins move in step.', sim: 'Run two state machines' },
+  ] },
+  pioisa: { steps: [
+    { t: 'Nine instructions', open: 'pio0', focus: ['pio0'], traffic: ['pio'], say: 'JMP, WAIT, IN, OUT, PUSH, PULL, MOV, IRQ and SET. Each is a 16-bit word: 3 bits of opcode, 5 bits of delay or side-set, 8 bits of arguments.', sim: 'Build an instruction' },
+  ] },
+  piofunc: { steps: [
+    { t: 'The extras', open: 'pio0', focus: ['pio0', 'clock'], traffic: ['pio', 'clock'], say: 'A clock divider slows each robot down; side-set flips pins alongside any instruction; autopull refills the OSR by itself; FIFO join gives one 8-deep belt.', sim: 'Divider, side-set and EXEC' },
+  ] },
+  usb: { steps: [
+    { t: 'The USB station', cam: 'usb', focus: ['usb', 'core0'], traffic: ['usb'], say: 'USB packets arrive at the east gate and pull into the USB station, where the PHY and serial engines decode them into 4 KB of dual-port memory.' },
+    { t: 'On the board', view: 'board', part: 'usb', say: 'That gate is the micro-USB connector: 12 Mbit/s full speed as a device, or host to keyboards and flash sticks.', sim: 'Explore the controller' },
+  ] },
+  uart: { steps: [
+    { t: 'One letter, bit by bit', cam: 'street', focus: ['uart', 'core0', 'apb'], traffic: ['uart'], say: 'The core drops the letter "H" at the UART shop. The UART sends it out of gate GP0 one bit at a time: a start bit, 8 data bits, a stop bit.', look: 'Small cars = bits leaving through GP0', sim: 'Build a UART frame' },
+  ] },
+  i2c: { steps: [
+    { t: 'Two shared gates', cam: 'street', focus: ['i2c', 'apb'], traffic: ['i2c'], say: 'I2C uses only two gates, SDA and SCL, shared by many devices. Every message starts with the address of the device it is for, here 0x76.', look: 'Gates GP16 and GP17 flicker', sim: 'Build an I2C transaction' },
+  ] },
+  spi: { steps: [
+    { t: 'A gate for every job', cam: 'street', focus: ['spi', 'apb'], traffic: ['spi'], say: 'SPI uses separate gates for clock, data out, data in and chip select, so it runs much faster than I2C.', sim: 'Try the four SPI modes' },
+  ] },
+  pwm: { steps: [
+    { t: 'On, off, on, off', cam: 'street', focus: ['pwm', 'apb'], traffic: ['pwm'], say: 'The PWM shop flips gate GP22 very fast. On for 25 % of each period means a quarter of the power: dimmer LEDs, slower motors, a servo angle.', look: 'GP22 is lit a quarter of the time', sim: 'Set TOP, CC and the divider' },
+  ] },
+  adc: { steps: [
+    { t: 'Measuring a voltage', cam: 'street', focus: ['adc', 'core0'], traffic: ['adc'], say: 'A voltage comes in at gate GP26. The ADC narrows it down with 12 yes/no guesses and sends the number to the core: 1.65 V becomes 2048.', sim: 'Measure voltages and temperature' },
+  ] },
+  timer: { steps: [
+    { t: 'Alarm clock', cam: 'street', focus: ['timer', 'core0'], traffic: ['timer'], say: 'The timer counts every microsecond. Write ALARM0 and, when the count matches, a pulse runs along the interrupt wire to core 0.', sim: 'Arm an alarm' },
+  ] },
+  wdog: { steps: [
+    { t: 'Keep feeding it', cam: 'street', focus: ['wdog', 'core0'], traffic: ['wdog'], say: 'As long as the core keeps sending "feed" cars to the watchdog, nothing happens. If the program gets stuck and stops feeding, the watchdog resets the whole chip.', sim: 'Let the watchdog bite' },
+  ] },
+  rtc: { steps: [
+    { t: 'Calendar time', cam: 'street', focus: ['rtc', 'core0'], traffic: ['rtc'], say: 'The RTC keeps the date and time from a 1 Hz tick and can wake the core at a chosen moment.', sim: 'Set the clock and an alarm' },
+  ] },
+  ssi: { steps: [
+    { t: 'Code from the ship', cam: 'ship', focus: ['flash', 'xip'], traffic: ['fetch'], say: 'Your program lives on the flash ship outside the walls. The SSI drives the QSPI pins and fetches code four bits per clock into the XIP harbour.' },
+    { t: 'The cache', cam: 'plaza', focus: ['xip', 'core0'], traffic: ['cache'], say: 'Code already in the 16 KB cache reaches the core straight away (a hit). Only a miss needs the slow trip out to flash.', sim: 'Hits, misses and the QSPI read' },
+  ] },
+});
+
 /* ================= BOOT ================= */
 async function boot() {
   try {
@@ -4809,7 +5526,7 @@ async function boot() {
   requestAnimationFrame(t => { last = t; frame(t); });
   setTimeout(() => $('#loader').classList.add('done'), 150);
   flyTo(HERO.tgt.clone(), heroDist(), HERO.pos.clone().sub(HERO.tgt).normalize(), 2800);
-  const h = location.hash.slice(1); if (h && (findTopic(h) || h === 'course')) setTimeout(() => courseOpen(h === 'course' ? null : h), 500);
+  const h = location.hash.slice(1); if (h && (findTopic(h) || h === 'course')) setTimeout(() => storyOpen(h === 'course' ? null : h), 500);
 }
 boot();
 })();
